@@ -94,13 +94,6 @@ class CorsMiddleware implements Middleware
     public function handle(): bool
     {
         try {
-            // Debug information in development
-            if (defined('DEVELOPMENT') && DEVELOPMENT === true) {
-                error_log('Request Origin: '.($this->getOrigin() ?? 'None'));
-                error_log('Same Origin: '.($this->isSameOrigin() ? 'Yes' : 'No'));
-                error_log('Server Variables: '.print_r($_SERVER, true));
-            }
-
             // If it's same origin, just continue without CORS headers
             if ($this->isSameOrigin()) {
                 return true;

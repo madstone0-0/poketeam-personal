@@ -1,9 +1,9 @@
 drop database if exists webtech_fall2024_madiba_quansah;
 
--- drop table team;
--- drop table team_pokemon;
--- drop table user;
--- drop table stats;
+-- drop table if exists team;
+-- drop table if exists team_pokemon;
+-- drop table if exists user;
+-- drop table if exists stats;
 create database if not exists webtech_fall2024_madiba_quansah;
 
 use webtech_fall2024_madiba_quansah;
@@ -14,7 +14,8 @@ create table user (
   lname varchar(100) not null,
   username varchar(50) unique not null,
   email varchar(100) not null,
-  passhash varchar(255) not null check (
+  passhash varchar(255) not null,
+  check (
     email regexp '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\\.[a-za-z]{2,}$'
   )
 );

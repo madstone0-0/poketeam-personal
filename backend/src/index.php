@@ -3,8 +3,8 @@
 require_once __DIR__.'/./utils.php';
 require_once __DIR__.'/./middleware.php';
 
-/*ini_set('display_errors', 1);*/
-/*error_reporting(E_ALL);*/
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $out = <<<'_GAN'
     They have taken the bridge and the second hall.
@@ -29,29 +29,29 @@ define('RULES', [
 ]);
 
 $handler = new MiddlewareHandler;
-if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
-    header('Access-Control-Allow-Origin: http://localhost:5173');
-    header('Access-Control-Allow-Credentials: true');
-    foreach (HEADERS as $header) {
-        header($header);
-    }
-    $handler->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));
+/*if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {*/
+/*    header('Access-Control-Allow-Origin: http://localhost:5173');*/
+/*    header('Access-Control-Allow-Credentials: true');*/
+/*    foreach (HEADERS as $header) {*/
+/*        header($header);*/
+/*    }*/
+/*    $handler->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));*/
+/**/
+/*} else {*/
+$corsOptions = [
+    'allowedOrigins' => [
+        'http://localhost:5173',
+        'http://169.239.251.102:3341',
+    ],
+    'allowedMethods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    'allowedHeaders' => ['Content-Type', 'Authorization', 'X-Requested-With'],
+    'allowCredentials' => true,
+    'maxAge' => 3600,
+];
 
-} else {
-    $corsOptions = [
-        'allowedOrigins' => [
-            'http://localhost:5173',
-            'http://169.239.251.102:3341',
-        ],
-        'allowedMethods' => ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        'allowedHeaders' => ['Content-Type', 'Authorization', 'X-Requested-With'],
-        'allowCredentials' => true,
-        'maxAge' => 3600,
-    ];
+$handler->add(new CorsMiddleware($corsOptions))->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));
 
-    $handler->add(new CorsMiddleware($corsOptions))->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));
-
-}
+/*}*/
 
 if (! $handler->handle()) {
     if (! headers_sent()) {
