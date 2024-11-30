@@ -7,8 +7,9 @@ import { usePoke } from "../utils/hooks";
 import { fetch } from "../utils/Fetch";
 import { validate, noneEmpty, getErrMsgIfExists } from "../utils";
 import Input from "../Input";
+import Header from "../Header";
 
-const Signup = () => {
+const Signup = ({ headerItems }) => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
     const [email, updateEmail] = useState("");
     const [username, updateUsername] = useState("");
@@ -94,60 +95,70 @@ const Signup = () => {
     };
 
     return (
-        <div className="flex flex-col m-auto mt-20 max-w-fit min-w-10">
-            <form className="flex flex-col space-y-3" id="signup-form" onSubmit={onSignup}>
-                <h1 className="text-3xl font-bold text-center">Signup</h1>
-                <div className="flex flex-col [&>*]:w-full mb-3 space-y-3 w-full md:flex md:flex-row md:justify-items-center md:space-y-0 md:space-x-3">
+        <>
+            <Header headerItems={headerItems} />
+            <div className="flex flex-col m-auto mt-20 max-w-fit min-w-10">
+                <form className="flex flex-col space-y-3" id="signup-form" onSubmit={onSignup}>
+                    <h1 className="text-3xl font-bold text-center">Signup</h1>
+                    <div className="flex flex-col [&>*]:w-full mb-3 space-y-3 w-full md:flex md:flex-row md:justify-items-center md:space-y-0 md:space-x-3">
+                        <Input
+                            type="text"
+                            id="fname"
+                            Icon={User}
+                            placeholder="First Name"
+                            value={fname}
+                            onChange={onFnameChange}
+                        />
+                        <Input
+                            type="text"
+                            id="lname"
+                            Icon={User}
+                            placeholder="Last Name"
+                            value={lname}
+                            onChange={onLnameChange}
+                        />
+                    </div>
                     <Input
                         type="text"
-                        id="fname"
-                        Icon={User}
-                        placeholder="First Name"
-                        value={fname}
-                        onChange={onFnameChange}
+                        id="email"
+                        Icon={Mail}
+                        placeholder="Email"
+                        value={email}
+                        onChange={onEmailChange}
+                    />
+                    <Input
+                        type="password"
+                        id="password"
+                        Icon={KeyRound}
+                        placeholder="Password"
+                        value={password}
+                        onChange={onPasswordChange}
+                        extra={[
+                            <button
+                                type="button"
+                                key="pwd-toggle"
+                                className="btn btn-circle btn-ghost"
+                                onClick={togglePwdHidden}
+                                aria-label="Toggle password visibility"
+                            >
+                                {pwdHidden ? <Eye /> : <EyeClosed />}
+                            </button>,
+                        ]}
                     />
                     <Input
                         type="text"
-                        id="lname"
+                        id="username"
                         Icon={User}
-                        placeholder="Last Name"
-                        value={lname}
-                        onChange={onLnameChange}
+                        placeholder="Username"
+                        value={username}
+                        onChange={onUsernameChange}
                     />
-                </div>
-                <Input type="text" id="email" Icon={Mail} placeholder="Email" value={email} onChange={onEmailChange} />
-                <Input
-                    type="password"
-                    id="password"
-                    Icon={KeyRound}
-                    placeholder="Password"
-                    value={password}
-                    onChange={onPasswordChange}
-                    extra={[
-                        <button
-                            type="button"
-                            key="pwd-toggle"
-                            className="btn btn-circle btn-ghost"
-                            onClick={togglePwdHidden}
-                            aria-label="Toggle password visibility"
-                        >
-                            {pwdHidden ? <Eye /> : <EyeClosed />}
-                        </button>,
-                    ]}
-                />
-                <Input
-                    type="text"
-                    id="username"
-                    Icon={User}
-                    placeholder="Username"
-                    value={username}
-                    onChange={onUsernameChange}
-                />
-                <button className="btn btn-primary" type="submit">
-                    Sign Up
-                </button>
-            </form>
-        </div>
+                    <button className="btn btn-primary" type="submit">
+                        Sign Up
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
 

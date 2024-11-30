@@ -50,7 +50,7 @@ class Fetch {
             headers: {
                 Accept: "application/json",
             },
-            credentials: "include",
+            withCredentials: true,
         });
 
         instance.interceptors.response.use(this.handleSuccess.bind(this), this.handleError.bind(this));

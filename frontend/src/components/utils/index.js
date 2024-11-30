@@ -1,3 +1,6 @@
+import { API_BASE } from "../constants";
+import { fetch } from "./Fetch";
+
 export const noneEmpty = (arr) => {
     return arr.every((item) => item !== "");
 };
@@ -17,10 +20,31 @@ export const validate = (password, email) => {
     }
 };
 
+export const ping = async () => {
+    try {
+        const res = await fetch.get(`${API_BASE}/user/ping`);
+
+        if (res.status !== 200) {
+            return false;
+        }
+
+        return true;
+    } catch (e) {
+        console.error({ e });
+        return false;
+    }
+};
+
+export const handlePing = async (callback) => {
+    if (!(await ping())) {
+        callback();
+    }
+};
+
 export const getErrMsgIfExists = (e) => {
     try {
         if (e.response) {
-            return e.response.data;
+            return e.response.data.err;
         }
     } catch (er) {
         return null;

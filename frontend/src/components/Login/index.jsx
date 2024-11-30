@@ -8,10 +8,11 @@ import { fetch } from "../utils/Fetch";
 import { validate, noneEmpty, getErrMsgIfExists } from "../utils";
 import "./index.css";
 import Input from "../Input";
+import Header from "../Header";
 
-const Login = () => {
+const Login = ({ headerItems }) => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-    const [email, updateEmail] = useState("");
+    const [email, updateEmailLocal] = useState("");
     const [password, updatePassword] = useState("");
     const [pwdHidden, updatePwdState] = useReducer((hidden) => !hidden, false);
     const navigate = useNavigate();
@@ -19,13 +20,13 @@ const Login = () => {
     const { uidState, usernameState, emailState, fnameState, lnameState } = usePoke();
     const { uid, updateUid } = uidState;
     const { username, updateUsername } = usernameState;
-    const { emailGlobal, updateEmailGlobal } = emailState;
+    const { emailGlobal, updateEmail } = emailState;
     const { fname, updateFname } = fnameState;
     const { lname, updateLname } = lnameState;
 
     const onEmailChange = (e) => {
         e.preventDefault();
-        return updateEmail(e.target.value);
+        return updateEmailLocal(e.target.value);
     };
 
     const onPasswordChange = (e) => {
@@ -62,58 +63,69 @@ const Login = () => {
         try {
             const res = await fetch.post(`${API_BASE}${LOGIN}`, data);
             console.log({ res });
+
             enqueueSnackbar("Login successful", { variant: "success" });
             const d = res.data;
             console.log({ d });
-            updateEmail("");
+            updateEmailLocal("");
             updatePassword("");
 
             updateUid(d.uid);
-            updateUsername(d.username);
-            updateEmailGlobal(d.email);
+            updateUsername(d.uname);
+            updateEmail(d.email);
             updateFname(d.fname);
             updateLname(d.lname);
-            //navigate("/login");
+            navigate(`/home/`);
         } catch (e) {
+            console.log({ e });
             const msg = getErrMsgIfExists(e) || e.message;
             if (msg instanceof Object) {
-                enqueueSnackbar(`Signup error: ${msg.err}`, { variant: "error" });
+                enqueueSnackbar(`Login error: ${msg.err}`, { variant: "error" });
             } else {
-                enqueueSnackbar(`Signup error: ${msg}`, { variant: "error" });
+                enqueueSnackbar(`Login error: ${msg}`, { variant: "error" });
             }
-            enqueueSnackbar(`Login error: ${msg}`, { variant: "error" });
         }
     };
 
     return (
-        <div className="flex flex-col m-auto mt-20 max-w-fit">
-            <form className="flex flex-col space-y-3" id="login-form" onSubmit={onLogin}>
-                <h1 className="text-3xl font-bold text-center">Login</h1>
-                <Input type="text" id="email" Icon={Mail} placeholder="Email" value={email} onChange={onEmailChange} />
-                <Input
-                    type="password"
-                    id="password"
-                    Icon={KeyRound}
-                    placeholder="Password"
-                    value={password}
-                    onChange={onPasswordChange}
-                    extra={[
-                        <button
-                            type="button"
-                            key="pwd-toggle"
-                            className="btn btn-circle btn-ghost"
-                            onClick={togglePwdHidden}
-                            aria-label="Toggle password visibility"
-                        >
-                            {pwdHidden ? <Eye /> : <EyeClosed />}
-                        </button>,
-                    ]}
-                />
-                <button className="btn btn-primary" type="submit">
-                    Login
-                </button>
-            </form>
-        </div>
+        <>
+            <Header headerItems={headerItems} />
+            <div className="flex flex-col m-auto mt-20 max-w-fit">
+                <form className="flex flex-col space-y-3" id="login-form" onSubmit={onLogin}>
+                    <h1 className="text-3xl font-bold text-center">Login</h1>
+                    <Input
+                        type="text"
+                        id="email"
+                        Icon={Mail}
+                        placeholder="Email"
+                        value={email}
+                        onChange={onEmailChange}
+                    />
+                    <Input
+                        type="password"
+                        id="password"
+                        Icon={KeyRound}
+                        placeholder="Password"
+                        value={password}
+                        onChange={onPasswordChange}
+                        extra={[
+                            <button
+                                type="button"
+                                key="pwd-toggle"
+                                className="btn btn-circle btn-ghost"
+                                onClick={togglePwdHidden}
+                                aria-label="Toggle password visibility"
+                            >
+                                {pwdHidden ? <Eye /> : <EyeClosed />}
+                            </button>,
+                        ]}
+                    />
+                    <button className="btn btn-primary" type="submit">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </>
     );
 };
 

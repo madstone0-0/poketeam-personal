@@ -9,6 +9,8 @@ if (import.meta.env.PROD) {
 
 export const LOGIN = "/auth/login";
 export const SIGNUP = "/auth/signup";
+export const LOGOUT = "/auth/logout";
+export const DELETE_USER = "/auth/delete";
 
 export const POKEMON_ROUTE = "/pokemon";
 export const MOVE_ROUTE = "/move";
