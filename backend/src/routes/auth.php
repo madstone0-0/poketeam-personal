@@ -7,10 +7,21 @@ require_once __DIR__.'/../services/UserService.php';
 $UserService = new UserService;
 
 $authRoutes = [
+    'GET' => ['logout' => logout(...)],
     'POST' => [
         'signup' => signUp(...), 'login' => login(...),
     ],
+    'DELETE' => ['delete' => deleteAccount(...)],
 ];
+
+function logout()
+{
+    session_start();
+    session_destroy();
+    session_unset();
+    session_abort();
+    sendData('Logged out', 200);
+}
 
 function signUp($data)
 {
@@ -39,6 +50,19 @@ function login($data)
     }
 
     $_SESSION['user'] = $res['data'];
+    sendData($res['data'], $res['status']);
+}
+
+function deleteAccount($id)
+{
+    global $UserService;
+    $res = $UserService->Delete($id);
+    if (! isOk($res['status'])) {
+        sendError($res['data'], $res['status']);
+
+        return;
+    }
+    session_destroy();
     sendData($res['data'], $res['status']);
 }
 

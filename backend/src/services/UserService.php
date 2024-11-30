@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__.'/../db/db.php';
+require_once __DIR__.'/../utils.php';
 
 class UserService
 {
@@ -9,6 +10,17 @@ class UserService
         global $db;
         $stmt = $db->prepare('select email from user where email = ?');
         $stmt->bindParam(1, $email);
+        $stmt->execute();
+        $res = $stmt->fetchAll();
+
+        return count($res) >= 1;
+    }
+
+    private function doesUserExistId($id)
+    {
+        global $db;
+        $stmt = $db->prepare('select uid from user where uid = ?');
+        $stmt->bindParam(1, $id);
         $stmt->execute();
         $res = $stmt->fetchAll();
 
@@ -102,5 +114,31 @@ class UserService
                 'lname' => $res['lname'],
                 'email' => $res['email'],
             ]];
+    }
+
+    public function Delete(int $id)
+    {
+        if (! $this->doesUserExistId($id)) {
+            return [
+                'status' => 400,
+                'data' => 'User does not exist',
+            ];
+        }
+
+        global $db;
+        $stmt = $db->prepare('delete from user where uid = ?');
+        $stmt->bindParam(1, $id);
+        if (! $stmt->execute()) {
+            return [
+                'status' => 500,
+                'data' => 'Failed to delete user',
+            ];
+        }
+
+        return [
+            'status' => 200,
+            'data' => 'User deleted successfully',
+        ];
+
     }
 }

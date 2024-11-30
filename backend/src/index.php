@@ -3,8 +3,8 @@
 require_once __DIR__.'/./utils.php';
 require_once __DIR__.'/./middleware.php';
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+/*ini_set('display_errors', 1);*/
+/*error_reporting(E_ALL);*/
 
 $out = <<<'_GAN'
     They have taken the bridge and the second hall.
@@ -26,6 +26,7 @@ define('RULES', [
         'fname' => ['required' => true], 'lname' => ['required' => true],
     ],
     'POST /auth/login' => ['email' => ['required' => true], 'password' => ['required' => true]],
+    'DELETE /auth/delete' => ['id' => ['required' => true]],
 ]);
 
 $handler = new MiddlewareHandler;
@@ -84,6 +85,10 @@ try {
         case 'auth':
             require_once __DIR__.'/./routes/auth.php';
             authHandler($verb, $uri);
+            break;
+        case 'user':
+            require_once __DIR__.'/./routes/user.php';
+            userHandler($verb, $uri);
             break;
         default:
             sendError('Route not found', 404);

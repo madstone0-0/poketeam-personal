@@ -23,7 +23,7 @@ class Database
 {
     private ?PDO $conn = null;
 
-    public function __construct($seed = true)
+    public function __construct(bool $seed = true)
     {
         try {
             $this->conn = new PDO(DB_ATTR, DB_USER, DB_PASS, DB_OPTS);
@@ -33,7 +33,7 @@ class Database
             }
         } catch (PDOException $e) {
             header('HTTP/1.1 500 Internal Server Error');
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['err' => $e->getMessage()]);
             exit(1);
         }
     }
