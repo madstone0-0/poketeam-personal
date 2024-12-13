@@ -1,0 +1,8 @@
+.team-card {
+  transition: ease-in-out 0.2s;
+  position: relative;
+}
+
+.team-card:hover {
+  transform: scale(1.1);
+}

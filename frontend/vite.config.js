@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,5 +11,10 @@ export default defineConfig({
         emptyOutDir: true,
     },
     base: "",
-    plugins: [react()],
+    plugins: [
+        react(),
+        viteStaticCopy({
+            targets: [{ src: path.resolve(__dirname, "./.htaccess"), dest: path.resolve(__dirname, "./dist") }],
+        }),
+    ],
 });

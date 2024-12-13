@@ -1,0 +1,8 @@
+.pokemon-card {
+  transition: ease 0.2s;
+  position: relative;
+}
+
+.pokemon-card:hover {
+  transform: scale(1.1);
+}

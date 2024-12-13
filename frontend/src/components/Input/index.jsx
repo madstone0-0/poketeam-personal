@@ -1,15 +1,15 @@
 import React from "react";
 
-const Input = ({ type, id, Icon, placeholder, value, onChange, extra = [] }) => (
+const Input = ({ type, id, Icon, placeholder, className = "", value, onChange, extra = [] }) => (
     <label className="flex gap-2 items-center input input-bordered">
-        <Icon />
+        {Icon && <Icon />}
         <input
             value={value}
             onChange={onChange}
             id={id}
             name={id}
             type={type}
-            className="grow"
+            className={`grow ${className}`}
             placeholder={placeholder}
         />
         {...extra}
