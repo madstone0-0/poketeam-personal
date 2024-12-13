@@ -25,3 +25,4 @@ dist-ssr
 
 # Misc
 .php-cs-fixer.cache
+vendor

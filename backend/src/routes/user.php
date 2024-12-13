@@ -3,10 +3,8 @@
 session_start();
 
 require_once __DIR__.'/../utils.php';
-
-$userRoutes = [
-    'GET' => ['ping' => pong(...)],
-];
+require_once __DIR__.'/user/team.php';
+require_once __DIR__.'/user/pokemon.php';
 
 function checkAuth()
 {
@@ -29,7 +27,24 @@ function pong()
 
 function userHandler($verb, $subroute)
 {
-    global $userRoutes;
+    switch ($subroute[0]) {
+        case 'ping':
+            if ($verb !== 'GET') {
+                sendError('Method not allowed', 405);
 
-    return routeHandler($verb, $subroute, $userRoutes);
+                return;
+            }
+            pong();
+            break;
+        case 'team':
+            teamHandler($verb, $subroute);
+            break;
+        case 'pokemon':
+            pokemonHandler($verb, $subroute);
+            break;
+        default:
+            sendError('Route not found', 404);
+            break;
+
+    }
 }

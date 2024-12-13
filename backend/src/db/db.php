@@ -3,12 +3,22 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'webtech_fall2024_madiba_quansah');
 
-if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {
-    define('DB_USER', 'madiba');
-    define('DB_PASS', 'madiba');
+if (! isset($_SERVER['SERVER_NAME'])) {
+    if (getenv('PWD') != null && getenv('LOCAL_SYNC') == null) {
+        define('DB_USER', 'madiba.quansah');
+        define('DB_PASS', 'madiba123');
+    } else {
+        define('DB_USER', 'madiba');
+        define('DB_PASS', 'madiba');
+    }
 } else {
-    define('DB_USER', 'madiba.quansah');
-    define('DB_PASS', 'madiba123');
+    if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1' || getenv('LOCAL_SYNC') != null) {
+        define('DB_USER', 'madiba');
+        define('DB_PASS', 'madiba');
+    } else {
+        define('DB_USER', 'madiba.quansah');
+        define('DB_PASS', 'madiba123');
+    }
 }
 
 define('DB_FMT', 'utf8mb4');

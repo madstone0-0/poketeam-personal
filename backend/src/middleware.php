@@ -153,15 +153,16 @@ class ValidationMiddleware implements Middleware
         if (isset($this->rules["$method $uri"])) {
             $data = $_REQUEST;
             $data = array_merge($data, json_decode(file_get_contents('php://input'), true) ?? []);
+            error_log(json_encode($data));
             $rules = $this->rules["$method $uri"];
 
             foreach ($rules as $field => $rule) {
-                if ((! isset($data[$field])) && $rule['required']) {
+                if (((! isset($data[$field])) || empty($data[$field])) && $rule['required']) {
                     sendError("Missing required field: $field", 400);
 
                     return false;
                 }
-                // Add more validation as needed
+
             }
         }
 

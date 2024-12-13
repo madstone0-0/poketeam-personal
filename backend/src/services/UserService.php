@@ -49,14 +49,14 @@ class UserService
         if ($this->doesUserExist($email)) {
             return [
                 'status' => 400,
-                'data' => 'User already exists',
+                'data' => ['msg' => 'User already exists'],
             ];
         }
 
         if ($this->usernameTaken($uname)) {
             return [
                 'status' => 400,
-                'data' => 'Username already taken',
+                'data' => ['msg' => 'Username already taken'],
             ];
         }
 
@@ -72,7 +72,7 @@ class UserService
         if (! $stmt->execute()) {
             return [
                 'status' => 500,
-                'data' => 'Failed to add user',
+                'data' => ['msg' => 'Failed to add user'],
             ];
         }
 
@@ -86,8 +86,8 @@ class UserService
     {
         if (! $this->doesUserExist($email)) {
             return [
-                'status' => 400,
-                'data' => 'User does not exist',
+                'status' => 404,
+                'data' => ['msg' => 'User does not exist'],
             ];
         }
 
@@ -101,7 +101,7 @@ class UserService
         if (! password_verify($password, $hash)) {
             return [
                 'status' => 401,
-                'data' => 'Incorrect password',
+                'data' => ['msg' => 'Incorrect password'],
             ];
         }
 
@@ -120,8 +120,8 @@ class UserService
     {
         if (! $this->doesUserExistId($id)) {
             return [
-                'status' => 400,
-                'data' => 'User does not exist',
+                'status' => 404,
+                'data' => ['msg' => 'User does not exist'],
             ];
         }
 
@@ -131,13 +131,13 @@ class UserService
         if (! $stmt->execute()) {
             return [
                 'status' => 500,
-                'data' => 'Failed to delete user',
+                'data' => ['msg' => 'Failed to delete user'],
             ];
         }
 
         return [
             'status' => 200,
-            'data' => 'User deleted successfully',
+            'data' => ['msg' => 'User deleted successfully'],
         ];
 
     }

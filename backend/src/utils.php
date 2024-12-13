@@ -1,23 +1,11 @@
 <?php
 
-function isAnyEmpty($array)
+function formatPokemonName($name)
 {
-    $array = trimArray($array);
+    $formatted = str_replace('-', ' ', $name);
+    $formatted = ucwords($formatted);
 
-    return any($array, function ($item) {
-        return empty($item);
-    });
-}
-
-function handleEmpty($array)
-{
-    if (isAnyEmpty($array)) {
-        sendError('Empty fields', 400);
-
-        return false;
-    }
-
-    return true;
+    return $formatted;
 }
 
 function trimArray($array)
@@ -38,7 +26,7 @@ function sendData($data, int $statusCode = 200): void
     send(['data' => $data], $statusCode);
 }
 
-function sendError($data, int $statusCode = 200): void
+function sendError($data, int $statusCode = 400): void
 {
     send(['err' => $data], $statusCode);
 }
@@ -57,11 +45,11 @@ function any($array, $func)
 {
     foreach ($array as $item) {
         if (! $func($item)) {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 function slice($array, $start = 1, $end = null)
@@ -76,6 +64,10 @@ function slice($array, $start = 1, $end = null)
 function handleNoBody($uri, $func)
 {
     try {
+        // Check if there is a body
+        $rawInput = file_get_contents('php://input');
+        $data = $rawInput ? json_decode($rawInput, associative: true) : null;
+
         // Determine if $func is a callable function or a method
         $reflection = is_array($func)
             ? new ReflectionMethod($func[0], $func[1]) // For class methods
@@ -84,11 +76,16 @@ function handleNoBody($uri, $func)
         // Get the number of required parameters
         $requiredParams = $reflection->getNumberOfRequiredParameters();
 
-        // Call $func with or without arguments based on the number of required parameters
-        if ($requiredParams === 0) {
-            $func(); // No arguments required
-        } elseif (isset($uri[2]) && $uri[2] !== null) {
-            $func($uri[2]); // Provide the argument
+        // URI takes precedence over body
+        if (isset($uri[2]) && $uri[2] !== null) {
+            $data = $uri[2];
+            $func($data);
+        } elseif ($data !== null) {
+            // Check if the required parameters are met
+            $func($data);
+        } elseif ($requiredParams === 0) {
+            // No body and no required parameters
+            $func();
         } else {
             throw new InvalidArgumentException('Insufficient arguments for the function.');
         }
@@ -125,46 +122,12 @@ function parseURI($rootFile = 'index.php')
 function handleBody($func)
 {
     $data = json_decode(file_get_contents('php://input'), associative: true);
+    if ($data === null) {
+        sendError('Invalid JSON', 400);
+
+        return;
+    }
     $func($data);
-}
-
-function validateNewData($fields, $data, $dataType)
-{
-    if (any(array_map(function ($item) use ($data) {
-        return $data[$item];
-    }, slice($fields, 2)), function ($item) {
-        return ! isset($item);
-    })) {
-        header('HTTP/1.1 400 Bad Request');
-
-        /*echo json_encode(["error" => "Invalid $dataType data"]);*/
-        return false;
-    }
-
-    return true;
-}
-
-function validateData($fields, $data, $dataType)
-{
-    if (! is_array($data)) {
-        header('HTTP/1.1 400 Bad Request');
-        echo json_encode(['error' => "Invalid $dataType data"]);
-
-        return false;
-    }
-
-    if (any(array_map(function ($item) use ($data) {
-        return $data[$item];
-    }, $fields), function ($item) {
-        return ! isset($item);
-    })) {
-        header('HTTP/1.1 400 Bad Request');
-
-        /*echo json_encode(["error" => "Invalid $dataType data"]);*/
-        return false;
-    }
-
-    return true;
 }
 
 function routeHandler($verb, $uri, $routes)

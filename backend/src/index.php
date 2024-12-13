@@ -1,7 +1,9 @@
 <?php
 
+require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/./utils.php';
 require_once __DIR__.'/./middleware.php';
+require_once __DIR__.'/./rules.php';
 
 /*ini_set('display_errors', 1);*/
 /*error_reporting(E_ALL);*/
@@ -21,24 +23,8 @@ define('HEADERS', [
     'Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
 ]);
 
-define('RULES', [
-    'POST /auth/signup' => ['email' => ['required' => true], 'password' => ['required' => true], 'username' => ['required' => true],
-        'fname' => ['required' => true], 'lname' => ['required' => true],
-    ],
-    'POST /auth/login' => ['email' => ['required' => true], 'password' => ['required' => true]],
-    'DELETE /auth/delete' => ['id' => ['required' => true]],
-]);
-
 $handler = new MiddlewareHandler;
-/*if ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1') {*/
-/*    header('Access-Control-Allow-Origin: http://localhost:5173');*/
-/*    header('Access-Control-Allow-Credentials: true');*/
-/*    foreach (HEADERS as $header) {*/
-/*        header($header);*/
-/*    }*/
-/*    $handler->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));*/
-/**/
-/*} else {*/
+
 $corsOptions = [
     'allowedOrigins' => [
         'http://localhost:5173',
@@ -51,8 +37,6 @@ $corsOptions = [
 ];
 
 $handler->add(new CorsMiddleware($corsOptions))->add(new JsonMiddleware)->add(new ValidationMiddleware(RULES));
-
-/*}*/
 
 if (! $handler->handle()) {
     if (! headers_sent()) {
@@ -88,7 +72,7 @@ try {
             break;
         case 'user':
             require_once __DIR__.'/./routes/user.php';
-            userHandler($verb, $uri);
+            userHandler($verb, slice($uri, 1));
             break;
         default:
             sendError('Route not found', 404);
