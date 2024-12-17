@@ -17,6 +17,26 @@ class MovesService
         $this->pokemonService = new PokemonService;
     }
 
+    private function getMoveCount($pid, $tid)
+    {
+        global $db;
+        $query = <<<'SQL'
+select
+	count(*)
+from
+	moves
+where
+	pid = ?
+	and tid = ?;
+SQL;
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(1, $pid);
+        $stmt->bindParam(2, $tid);
+        $stmt->execute();
+
+        return $stmt->fetchColumn();
+    }
+
     public function FetchById($pid)
     {
         try {
@@ -49,6 +69,39 @@ class MovesService
         }
     }
 
+    public function FetchAllByPid($pid)
+    {
+        try {
+            $res = $this->pokemonService->GetFromAPIById($pid);
+            if (! isOk($res['status'])) {
+                throw new Exception('Failed to fetch pokemon data');
+            }
+            $moves = $res['data']['moves'];
+            $moves = array_map(function ($move) {
+                $mid = explode('/', $move['move']['url'])[6];
+
+                return [
+                    'id' => intval($mid),
+                    'name' => $move['move']['name'],
+                ];
+            }, $moves);
+
+            return [
+                'status' => 200,
+                'data' => $moves,
+            ];
+
+        } catch (Exception $e) {
+            error_log('Failed to fetch move data: '.$e->getMessage());
+
+            return [
+                'status' => 500,
+                'data' => 'Failed to fetch move data',
+            ];
+        }
+
+    }
+
     public function GetById($pid, $tid)
     {
         global $db;
@@ -77,40 +130,25 @@ class MovesService
         ];
     }
 
-    private function getNextFreeSlot($pid, $tid)
-    {
-        global $db;
-        $stmt = $db->prepare('select max(slot) from moves where pid = ? and tid = ?');
-        $stmt->bindParam(1, $pid);
-        $stmt->bindParam(2, $tid);
-        if (! $stmt->execute()) {
-            throw new Exception('Failed to fetch free slots');
-        }
-        $slot = $stmt->fetchColumn();
-        error_log('slot: '.json_encode($slot));
-
-        return $slot + 1;
-    }
-
     public function Add($data)
     {
         $tid = $data['tid'];
         $pid = $data['pid'];
         $mid = $data['mid'];
 
-        $nextSlot = $this->getNextFreeSlot($pid, $tid);
-        if ($nextSlot > 4) {
+        $moveCount = $this->getMoveCount($pid, $tid);
+        if ($moveCount >= 4) {
             return [
                 'status' => 400,
                 'data' => 'Too many moves',
             ];
         }
+
         global $db;
-        $stmt = $db->prepare('insert into moves (pid, tid, mid, slot) values (?, ?, ?, ?)');
+        $stmt = $db->prepare('insert into moves (pid, tid, mid) values (?, ?, ?)');
         $stmt->bindParam(1, $pid);
         $stmt->bindParam(2, $tid);
         $stmt->bindParam(3, $mid);
-        $stmt->bindParam(4, $nextSlot);
         if (! $stmt->execute()) {
             return [
                 'status' => 500,
@@ -122,6 +160,78 @@ class MovesService
             'status' => 200,
             'data' => ['msg' => 'Move added successfully'],
         ];
+    }
+
+    public function DeleteAllMovesByPid($data)
+    {
+        $pid = $data['pid'];
+        $tid = $data['tid'];
+
+        global $db;
+        $stmt = $db->prepare('delete from moves where pid = ? and tid = ?');
+        $stmt->bindParam(1, $pid);
+        $stmt->bindParam(2, $tid);
+        if (! $stmt->execute()) {
+            return [
+                'status' => 500,
+                'data' => 'Failed to delete moves',
+            ];
+        }
+
+        return [
+            'status' => 200,
+            'data' => ['msg' => 'Moves deleted successfully'],
+        ];
+    }
+
+    public function UpdateByPid($data)
+    {
+        $pid = $data['pid'];
+        $tid = $data['tid'];
+        $moves = $data['moves'];
+        $startedTransactionHere = true;
+
+        error_log('Moves: '.json_encode($moves));
+        global $db;
+        try {
+            if (! $db->inTransaction()) {
+                $db->beginTransaction();
+            } else {
+                $startedTransactionHere = false;
+            }
+            $deleteRes = $this->DeleteAllMovesByPid(['pid' => $pid, 'tid' => $tid]);
+            if (! isOk($deleteRes['status'])) {
+                throw new Exception('Failed to delete moves');
+            }
+            $stmt = $db->prepare('insert into moves (pid, tid, mid) values (?, ?, ?)');
+            foreach ($moves as $move) {
+                $stmt->bindParam(1, $pid);
+                $stmt->bindParam(2, $tid);
+                $stmt->bindParam(3, $move['mid']);
+                if (! $stmt->execute()) {
+                    throw new Exception('Failed to update moves');
+                }
+            }
+            if ($startedTransactionHere) {
+                $db->commit();
+            }
+
+            return [
+                'status' => 200,
+                'data' => ['msg' => 'Moves updated successfully'],
+            ];
+        } catch (Exception $e) {
+            error_log('Failed to update moves: '.$e->getTraceAsString());
+            if ($startedTransactionHere) {
+                $db->rollBack();
+            }
+
+            return [
+                'status' => 500,
+                'data' => $e->getMessage(),
+            ];
+        }
+
     }
 
     public function AssignRandomMoves($data)
@@ -136,7 +246,6 @@ class MovesService
         $moves = $movesRes['data'];
 
         global $db;
-        // $db->beginTransaction();
         try {
             for ($i = 0; $i < 4; $i++) {
                 $move = $moves[array_rand($moves)];
@@ -146,14 +255,11 @@ class MovesService
                 }
             }
 
-            // $db->commit();
-
             return [
                 'status' => 200,
                 'data' => ['msg' => 'Starter moves assigned successfully'],
             ];
         } catch (Exception $e) {
-            // $db->rollBack();
 
             return [
                 'status' => 500,

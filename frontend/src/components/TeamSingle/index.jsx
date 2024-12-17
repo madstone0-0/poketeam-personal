@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useReducer } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useReducer, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { getPokemonById, updateTeamPokemon } from "../utils/api";
 import { useSnackbar } from "notistack";
 import PokemonPicker from "../PokemonPicker";
@@ -7,9 +7,9 @@ import withLoading from "../WithLoading";
 import { useQueryClient } from "react-query";
 import TeamPokemonGrid from "../TeamPokemonGrid";
 import Input from "../Input";
-import { usePoke } from "../utils/hooks";
+import useStore from "../stores";
 import { useUserQueriesAndMutations } from "../utils/queries";
-import { DEFAULT_LEVEL } from "../constants";
+import { useSettings } from "../utils/hooks";
 
 const TeamSingle = () => {
     const { tid } = useParams();
@@ -17,9 +17,9 @@ const TeamSingle = () => {
     const [pokemon, setPokemon] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pickedPokemon, pickPokemon] = useState(new Set(pokemon.map((poke) => poke.pid)));
-    const { uidState } = usePoke();
-    const { uid } = uidState;
-    const { queries, mutations } = useUserQueriesAndMutations({ tid, uid });
+    const user = useStore((state) => state.user);
+    const { uid } = user;
+    const { queries } = useUserQueriesAndMutations({ tid, uid });
     const { teamPokemonQuery } = queries;
     const [editTeamName, setTeamName] = useState(team.team_name);
     const [teamName, setMainTeamName] = useState("");
@@ -29,7 +29,6 @@ const TeamSingle = () => {
     useEffect(() => {
         teamPokemonQuery.refetch();
         if (teamPokemonQuery.isSuccess) {
-            console.log({ teamPokemonQuery });
             setTeam(teamPokemonQuery.data.team);
             setMainTeamName(teamPokemonQuery.data.team.team_name);
             setTeamName(teamPokemonQuery.data.team.team_name);
@@ -42,14 +41,19 @@ const TeamSingle = () => {
         };
     }, []);
 
+    const selectedPokemon = useStore((state) => state.pokemon);
+    const setSelectedPokemon = useStore((state) => state.setSelectedPokemon);
+
     useEffect(() => {
-        teamPokemonQuery.refetch();
+        // teamPokemonQuery.refetch();
         if (teamPokemonQuery.isSuccess) {
-            console.log({ teamPokemonQuery });
             setTeam(teamPokemonQuery.data.team);
             setMainTeamName(teamPokemonQuery.data.team.team_name);
             setTeamName(teamPokemonQuery.data.team.team_name);
             setPokemon(teamPokemonQuery.data.pokemon);
+            if (selectedPokemon != null) {
+                setSelectedPokemon(teamPokemonQuery.data.pokemon.find((poke) => poke.pid === selectedPokemon.pid));
+            }
             setLoading(false);
         }
 
@@ -67,10 +71,21 @@ const TeamSingle = () => {
         loading,
         pickedPokemon,
         pickPokemon,
+        setMainTeamName,
     });
 };
 
-const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPokemon, pickPokemon }) => {
+const TeamSingleView = ({
+    teamNameState,
+    tid,
+    uid,
+    teamName,
+    setMainTeamName,
+    pokemon,
+    pickedPokemon,
+    pickPokemon,
+}) => {
+    const nav = useNavigate();
     const [editMode, setEditMode] = useReducer((editMode) => !editMode, false);
     const [deletePokemon, setDeletePokemon] = useState(new Set([]));
     const { enqueueSnackbar } = useSnackbar();
@@ -79,7 +94,11 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
     const { teamPokemonQuery } = queries;
     const { teamAddPokemonMutation, teamDeleteManyPokemonMutation, teamUpdateMutation } = mutations;
     const { editTeamName, setTeamName } = teamNameState;
+    const { options } = useSettings();
     const queryClient = useQueryClient();
+
+    const selectedPokemon = useStore((state) => state.pokemon);
+    const setSelectedPokemon = useStore((state) => state.setSelectedPokemon);
 
     const toggleEditMode = () => {
         setEditMode();
@@ -87,7 +106,7 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
 
     const handleButtonClick = async (e) => {
         if (editMode) {
-            onSaveChanges(e);
+            await onSaveChanges(e);
             return;
         }
 
@@ -111,7 +130,7 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
             try {
                 const teamData = { id: tid, name: editTeamName };
                 const teamRes = await teamUpdateMutation.mutateAsync(teamData);
-                console.log({ teamRes });
+                setMainTeamName(editTeamName);
             } catch (e) {
                 console.error({ e });
                 enqueueSnackbar(e.message, { variant: "error" });
@@ -123,10 +142,9 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
         if (deletePokemon.size > 0) {
             try {
                 const data = { tid, pids: Array.from(deletePokemon) };
-                console.log({ deleteData: data });
                 const deleteRes = await teamDeleteManyPokemonMutation.mutateAsync(data);
-                console.log({ deleteRes });
                 setDeletePokemon(new Set());
+                setShownPokemon(pokemon.filter((poke) => !deletePokemon.has(poke.pid)));
                 teamPokemonQuery.refetch();
             } catch (e) {
                 console.error({ e });
@@ -143,22 +161,19 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
                 return;
             }
 
-            console.log({ pickedPokemon });
             let data = { tid, pokemon: [] };
             for (let pid of pickedPokemon) {
                 const pokeInfo = await getPokemonById(pid);
                 data.pokemon.push({
                     pid: pid,
                     nickname: pokeInfo.name,
-                    level: DEFAULT_LEVEL,
+                    level: options.defaultLevel,
                     is_shiny: 0,
                 });
             }
 
-            console.log({ data });
             try {
                 const res = await teamAddPokemonMutation.mutateAsync(data);
-                console.log({ res });
                 pickPokemon(new Set());
                 teamPokemonQuery.refetch();
                 toggleEditMode();
@@ -172,16 +187,12 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
         }
 
         toggleEditMode();
-        console.log("Here");
     };
 
-    useEffect(() => {
-        console.log({ editMode });
-    }, [editMode]);
+    useEffect(() => {}, [editMode]);
 
     useEffect(() => {
         setShownPokemon(pokemon.filter((poke) => !deletePokemon.has(poke.pid)));
-        console.log({ deletePokemon, shownPokemon });
     }, [deletePokemon, pokemon]);
 
     const deleteOnPokeClick = (poke) => {
@@ -196,26 +207,38 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
         }
     };
 
+    const shownMemo = useMemo(() => shownPokemon, [shownPokemon]);
+    const pickedMemo = useMemo(() => pickedPokemon, [pickedPokemon]);
+
+    const onTeamPokemonClick = (poke) => {
+        setSelectedPokemon(poke);
+        nav(`pokemon/${poke.pid}`);
+    };
+
     const RenderMain = () => {
+        const loading = teamAddPokemonMutation.isLoading || teamDeleteManyPokemonMutation.isLoading;
         if (editMode) {
-            const loading = teamAddPokemonMutation.isLoading || teamDeleteManyPokemonMutation.isLoading;
-            // setShownPokemon(pokemon.filter((poke) => !deletePokemon.has(poke.pid)));
-            return withLoading(({ pokemon, pickedPokemon, pickPokemon }) => (
-                <>
-                    <PokemonPicker teamPokemon={pokemon} pickedPokemon={pickedPokemon} pickPokemon={pickPokemon} />
-                    <TeamPokemonGrid clickableCard={true} onPokeClick={deleteOnPokeClick} pokemon={shownPokemon} />
-                </>
-            ))({ pokemon, pickedPokemon, pickedPokemon, loading });
+            return withLoading(({ shownMemo, pickedMemo, pickPokemon }) => (
+                <div className="flex flex-col">
+                    <PokemonPicker
+                        teamPokemonNum={shownPokemon.length}
+                        pickedPokemon={pickedMemo}
+                        pickPokemon={pickPokemon}
+                    />
+                    <h1 className="m-4 text-xl font-bold text-center md:text-3xl">
+                        Click a Pokemon to remove it from your team
+                    </h1>
+                    <TeamPokemonGrid clickableCard={true} onPokeClick={deleteOnPokeClick} pokemon={shownMemo} />
+                </div>
+            ))({ shownMemo, pickedMemo, loading, pickPokemon });
+        } else if (pokemon.length > 0) {
+            return <TeamPokemonGrid onPokeClick={onTeamPokemonClick} clickableCard={true} pokemon={pokemon} />;
         } else {
-            if (pokemon.length > 0) {
-                return <TeamPokemonGrid pokemon={pokemon} />;
-            } else {
-                return (
-                    <div className="p-5 font-bold text-center align-middle h-[100vh]">
-                        <span>No Pokemon in this team</span>
-                    </div>
-                );
-            }
+            return (
+                <div className="p-5 font-bold text-center align-middle h-[100vh]">
+                    <span>No Pokemon in this team</span>
+                </div>
+            );
         }
     };
 
@@ -232,7 +255,7 @@ const TeamSingleView = ({ teamNameState, tid, uid, teamName, pokemon, pickedPoke
             ) : (
                 <h1 className="mb-5 text-4xl font-bold text-center">{teamName}</h1>
             )}
-            <div className="flex flex-col justify-center self-center w-1/2 md:flex-row">
+            <div className="flex flex-col justify-center items-center self-center w-1/2 md:flex-row">
                 <button
                     onClick={handleButtonClick}
                     className={`m-2 w-full ${!editMode ? "self-center" : ""} text-sm md:m-5 md:w-1/2 md:text-lg btn btn-primary`}

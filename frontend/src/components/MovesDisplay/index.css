@@ -1,0 +1,9 @@
+.moves-card {
+  cursor: pointer;
+  transition: ease 0.2s;
+  position: relative;
+}
+
+.moves-card:hover {
+  transform: scale(1.1);
+}

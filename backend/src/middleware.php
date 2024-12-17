@@ -157,6 +157,7 @@ class ValidationMiddleware implements Middleware
             $rules = $this->rules["$method $uri"];
 
             foreach ($rules as $field => $rule) {
+                error_log("Field: $field, Rule: ".json_encode($rule).', Empty:'.empty($data[$field]));
                 if (((! isset($data[$field])) || empty($data[$field])) && $rule['required']) {
                     sendError("Missing required field: $field", 400);
 

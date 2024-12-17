@@ -74,6 +74,10 @@ try {
             require_once __DIR__.'/./routes/user.php';
             userHandler($verb, slice($uri, 1));
             break;
+        case 'admin':
+            require_once __DIR__.'/./routes/admin.php';
+            adminHandler($verb, slice($uri, 1));
+            break;
         default:
             sendError('Route not found', 404);
             exit();

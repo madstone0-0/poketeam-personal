@@ -9,9 +9,7 @@ const Hero = ({ headerItems }) => {
     useEffect(() => {
         (async () => {
             const res = await fetch.get(`${API_BASE}/health`);
-            console.log(res);
             const status = res.data.status;
-            enqueueSnackbar(`API Ping`, { variant: res.statusText === "OK" ? "success" : "error" });
             console.log(status);
             return () => {};
         })();

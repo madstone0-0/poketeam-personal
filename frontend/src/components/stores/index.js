@@ -3,66 +3,76 @@ import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { ping } from "../utils";
 
+const initialUser = {
+    username: null,
+    email: null,
+    fname: null,
+    lname: null,
+    is_admin: false,
+    uid: null,
+};
+
 const useStore = create(
     immer(
         devtools(
             persist((set) => ({
-                username: null,
-                email: null,
-                fname: null,
-                lname: null,
-                uid: null,
-                teams: [],
+                user: initialUser,
+                selectedPokemon: null,
+                selectedTeam: null,
+
+                setSelectedTeam: (val) =>
+                    set((state) => {
+                        state.selectedTeam = val;
+                    }),
+
+                setSelectedPokemon: (val) =>
+                    set((state) => {
+                        state.selectedPokemon = val;
+                    }),
 
                 updateUsername: (val) =>
                     set((state) => {
-                        state.username = val;
+                        state.user.username = val;
                     }),
 
                 updateEmail: (val) =>
                     set((state) => {
-                        state.email = val;
+                        state.user.email = val;
                     }),
 
                 updateFname: (val) =>
                     set((state) => {
-                        state.fname = val;
+                        state.user.fname = val;
                     }),
 
                 updateLname: (val) =>
                     set((state) => {
-                        state.lname = val;
+                        state.user.lname = val;
                     }),
 
                 updateUid: (val) =>
                     set((state) => {
-                        state.uid = val;
-                    }),
-
-                setTeams: (val) =>
-                    set((state) => {
-                        state.teams = val;
+                        state.user.uid = val;
                     }),
 
                 reset: (opts) =>
                     set((state) => {
                         if (!opts) {
-                            state.username = null;
-                            state.email = null;
-                            state.fname = null;
-                            state.lname = null;
-                            state.uid = null;
-                            state.teams = [];
+                            state.user = initialUser;
+                            state.selectedPokemon = null;
+                            state.selectedTeam = null;
                             return;
                         }
 
-                        const { username, email, fname, lname, uid, teams } = opts;
-                        if (username) state.username = null;
-                        if (email) state.email = null;
-                        if (fname) state.fname = null;
-                        if (lname) state.lname = null;
-                        if (uid) state.uid = null;
-                        if (teams) state.teams = [];
+                        const { username, email, fname, lname, uid, pokemon, team, admin } = opts;
+                        if (username) state.user.username = username;
+                        if (email) state.user.email = email;
+                        if (fname) state.user.fname = fname;
+                        if (lname) state.user.lname = lname;
+                        if (uid) state.user.uid = uid;
+                        if (pokemon) state.selectedPokemon = pokemon;
+                        if (team) state.selectedTeam = team;
+                        if (admin) state.user.is_admin = admin;
                     }),
             })),
             {

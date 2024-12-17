@@ -24,7 +24,7 @@ const PokemonGrid = ({ pokemon, limit = null, pickedPokemon, onPokeClick }) => {
     return (
         <div ref={parentRef} style={{ overflow: "auto" }}>
             <div
-                className="flex flex-row flex-wrap"
+                className="flex flex-row flex-wrap w-fit"
                 style={{
                     height: `${rowVirtualizer.getTotalSize()}px`,
                     width: "100%",

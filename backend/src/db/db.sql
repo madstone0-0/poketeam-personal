@@ -7,19 +7,21 @@ drop table if exists team_pokemon;
 
 drop table if exists team;
 
-drop table if exists user;
+-- drop table if exists user;
 
 -- drop table if exists pokemon_cache;
+
 -- create database if not exists webtech_fall2024_madiba_quansah;
 use webtech_fall2024_madiba_quansah;
 
-create table user (
+create table if not exists user (
   uid int auto_increment primary key,
   fname varchar(100) not null,
   lname varchar(100) not null,
   username varchar(50) unique not null,
-  email varchar(100) not null,
+  email varchar(100) unique not null,
   passhash varchar(255) not null,
+  is_admin boolean not null default false,
   check (
     email regexp '^[a-za-z0-9._%+-]+@[a-za-z0-9.-]+\\.[a-za-z]{2,}$'
   )
@@ -52,9 +54,7 @@ create table moves (
   mid int not null,
   pid int not null,
   tid int not null,
-  slot int not null,
-  check (slot between 1 and 4),
-  primary key (mid, pid, tid, slot),
+  primary key (mid, pid, tid),
   foreign key (pid, tid) references team_pokemon (pid, tid) on delete cascade
 );
 
@@ -70,23 +70,18 @@ create table stats (
   speed int not null,
   check (
     hp > 0
-    and hp <= 255
   ),
   check (
     attack > 0
-    and attack <= 255
   ),
   check (
     defense > 0
-    and defense <= 255
   ),
   check (
     spattack > 0
-    and spattack <= 255
   ),
   check (
     spdefense > 0
-    and spdefense <= 255
   ),
   foreign key (pid, tid) references team_pokemon (pid, tid) on delete cascade
 );
@@ -97,6 +92,7 @@ create table if not exists pokemon_cache (
   type1 varchar(20) not null,
   type2 varchar(20),
   sprite_url varchar(255),
+  shiny_sprite_url varchar(255),
   last_updated datetime not null default current_timestamp on update current_timestamp
 );
 
@@ -114,7 +110,8 @@ create table if not exists pokemon_cache (
 -- end if;
 -- 
 -- end;
-
 create index stats_exist on stats (tid, pid);
-create index team_pokemon_exist on team_pokemon (tid, pid)
+
+create index team_pokemon_exist on team_pokemon (tid, pid);
+
 create index moves_exist on moves (tid, pid);

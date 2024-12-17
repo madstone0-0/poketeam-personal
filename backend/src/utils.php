@@ -1,11 +1,58 @@
 <?php
 
+function checkAdminAuth()
+{
+    session_start();
+    error_log('Checking admin auth');
+    error_log(json_encode($_SESSION['user']));
+    if (! isset($_SESSION['user']) || $_SESSION['user']['is_admin'] !== 1) {
+        header('HTTP/1.1 401 Unauthorized');
+        sendError('Unauthorized', 401);
+
+        return false;
+    }
+
+    return true;
+}
+
+function checkUserAuth()
+{
+    if (! isset($_SESSION['user'])) {
+        header('HTTP/1.1 401 Unauthorized');
+        sendError('Unauthorized', 401);
+
+        return false;
+    }
+
+    return true;
+}
+
 function formatPokemonName($name)
 {
     $formatted = str_replace('-', ' ', $name);
     $formatted = ucwords($formatted);
 
     return $formatted;
+}
+
+function isAnyEmpty($array)
+{
+    $array = trimArray($array);
+
+    return any($array, function ($item) {
+        return empty($item);
+    });
+}
+
+function handleEmpty($array)
+{
+    if (isAnyEmpty($array)) {
+        sendError('Empty fields', 400);
+
+        return false;
+    }
+
+    return true;
 }
 
 function trimArray($array)
@@ -44,7 +91,7 @@ function mysql_datetime_from_mystring($date)
 function any($array, $func)
 {
     foreach ($array as $item) {
-        if (! $func($item)) {
+        if ($func($item)) {
             return true;
         }
     }
@@ -169,7 +216,7 @@ const passwordRegexes = [
     ],
     [
         'msg' => 'Must include at least 3 digits',
-        'regex' => "/\d{3,}/",
+        'regex' => "/^(?=(.*\d.*){3,})/",
     ],
     [
         'msg' => 'Must contain at least one special character',

@@ -1,24 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { searchPokemon } from "../utils/api";
 import Input from "../Input";
 import PokemonGrid from "../PokemonGrid";
 import { useSnackbar } from "notistack";
+import tempStore from "../stores/tempStore";
 
-const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
+const PokemonPicker = ({ teamPokemonNum, pickedPokemon, pickPokemon }) => {
+    const pickerOpen = tempStore((state) => state.pickerOpen);
+    const searchTerm = tempStore((state) => state.searchTerm);
+    const setPickerOpen = tempStore((state) => state.setPickerOpen);
+    const setSearchTerm = tempStore((state) => state.setSearchTerm);
     const [pokemon, setPokemon] = useState([]);
-    const [checked, setChecked] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
-        if (searchTerm === "") {
+        if (searchTerm.length < 2) {
             setPokemon([]);
             return;
         }
 
         searchPokemon(searchTerm)
             .then((res) => {
-                console.log({ res });
                 setPokemon(res);
             })
             .catch((error) => {
@@ -27,7 +29,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
     }, [searchTerm]);
 
     const onPokemonSelect = (poke) => {
-        if (pickedPokemon.length >= 6 || teamPokemon.length >= 6) {
+        if (pickedPokemon.length >= 6 || teamPokemonNum >= 6) {
             enqueueSnackbar("Team is full", { variant: "error" });
             return;
         }
@@ -38,13 +40,22 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
         } else {
             pickPokemon(pickedPokemon.add(poke.pid));
         }
-        console.log({ pickedPokemon });
     };
+
+    const handleChange = useCallback(
+        (e) => {
+            setSearchTerm(e.target.value);
+        },
+        [setSearchTerm],
+    );
 
     return (
         <>
-            <div className="self-center p-5 mt-5 w-[90%] rounded-lg collapse bg-base-100">
-                <input value={checked} onChange={() => setChecked(!checked)} type="checkbox" />
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="self-center p-1 md:p-3 mt-5 w-full  md:w-[95%] rounded-lg collapse bg-base-100"
+            >
+                <input checked={pickerOpen} onChange={(e) => setPickerOpen(!pickerOpen)} type="checkbox" />
                 <h1 className="mb-5 text-3xl text-center collapse-title">Pokemon Picker</h1>
                 <div className="collapse-content">
                     <div className="flex justify-center mb-5">
@@ -54,7 +65,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
                             name="search"
                             placeholder="Search Pokemon"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={handleChange}
                         />
                     </div>
                     <div>

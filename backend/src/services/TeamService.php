@@ -3,6 +3,7 @@
 require_once __DIR__.'/../db/db.php';
 require_once __DIR__.'/../utils.php';
 require_once __DIR__.'/../services/StatsService.php';
+require_once __DIR__.'/../services/UserService.php';
 require_once __DIR__.'/../services/MovesService.php';
 
 class TeamService
@@ -16,6 +17,14 @@ class TeamService
         $result = $stmt->fetchAll();
 
         return count($result) > 0;
+    }
+
+    private function updatedLastUpdated($tid)
+    {
+        global $db;
+        $stmt = $db->prepare('update team set updated_at = now() where tid = ?');
+        $stmt->bindParam(1, $tid);
+        $stmt->execute();
     }
 
     private function doesPokeomExistInTeam($tid, $pid)
@@ -54,6 +63,49 @@ class TeamService
         return count($result) > 0;
     }
 
+    public function GetAll()
+    {
+        global $db;
+        $query = <<<'SQL'
+        select
+        	*
+        from
+        	team t
+        inner join user u on
+        	u.uid = t.uid;
+        SQL;
+        $stmt = $db->prepare($query);
+        if (! $stmt->execute()) {
+            return [
+                'status' => 500,
+                'data' => 'Failed to fetch teams',
+            ];
+        }
+
+        $result = $stmt->fetchAll();
+        $data = [];
+        foreach ($result as $team) {
+            $data[] = [
+                'tid' => $team['tid'],
+                'team_name' => $team['team_name'],
+                'uid' => $team['uid'],
+                'created_at' => $team['created_at'],
+                'updated_at' => $team['updated_at'],
+                'user' => [
+                    'username' => $team['username'],
+                    'email' => $team['email'],
+                    'fname' => $team['fname'],
+                    'lname' => $team['lname'],
+                ],
+            ];
+        }
+
+        return [
+            'status' => 200,
+            'data' => $data,
+        ];
+    }
+
     public function GetById($id)
     {
         if (! $this->doesTeamExist($id)) {
@@ -83,6 +135,14 @@ class TeamService
 
     public function GetByUID($uid)
     {
+        $UserService = new UserService;
+        if (! $UserService->doesUserExistId($uid)) {
+            return [
+                'status' => 404,
+                'data' => 'User not found',
+            ];
+        }
+
         global $db;
         $stmt = $db->prepare('select * from team where uid = ?');
         $stmt->bindParam(1, $uid);
@@ -253,6 +313,8 @@ class TeamService
             ];
         }
 
+        $this->updatedLastUpdated($tid);
+
         return [
             'status' => 200,
             'data' => ['msg' => 'Team pokemon deleted successfully'],
@@ -289,6 +351,10 @@ class TeamService
     {
         $tid = $data['tid'];
         $pokemon = $data['pokemon'];
+        $pid = $pokemon['pid'];
+        $stats = $pokemon['stats'];
+        $moves = $pokemon['moves'];
+
         if (! $this->doesTeamExist($tid)) {
             return [
                 'status' => 404,
@@ -296,44 +362,59 @@ class TeamService
             ];
         }
 
+        if (! $this->doesPokeomExistInTeam($tid, $pid)) {
+            return [
+                'status' => 404,
+                'data' => 'Pokemon not found in team',
+            ];
+        }
+
         global $db;
         $StatsService = new StatsService;
+        $MovesService = new MovesService;
         $db->beginTransaction();
 
-        $this->DeleteAllTeamPokemon($data);
         try {
-            foreach ($pokemon as $p) {
-                $pid = $p['pid'];
-                $nickname = $p['nickname'];
-                $level = $p['level'];
-                $is_shiny = $p['is_shiny'];
-                $stmt = $db->prepare('insert into team_pokemon (tid, pid, nickname, level, is_shiny) values (?, ?, ?, ?, ?)');
-                $stmt->bindParam(1, $tid);
-                $stmt->bindParam(2, $pid);
-                $stmt->bindParam(3, $nickname);
-                $stmt->bindParam(4, $level);
-                $stmt->bindParam(5, $is_shiny);
-                error_log('Inserting team pokemon');
-                if (! $stmt->execute()) {
-                    error_log('Failed to update team pokemon');
-                    throw new Exception('Failed to update team pokemon');
-                }
-                if ($this->doesStatsExist($pid, $tid)) {
-                    error_log('Stats already exist');
+            $query = <<<'SQL'
+            update team_pokemon set
+            is_shiny = :is_shiny,
+            level = :level,
+            nickname = :nickname
+            where pid = :pid and tid = :tid
+            SQL;
 
-                    continue;
-                } else {
-                    $statsRes = $StatsService->FetchById($pid);
-                    if (! isOk($statsRes['status'])) {
-                        error_log('Failed to fetch stats');
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':is_shiny', $pokemon['is_shiny']);
+            $stmt->bindParam(':level', $pokemon['level']);
+            $stmt->bindParam(':nickname', $pokemon['nickname']);
+            $stmt->bindParam(':pid', $pid);
+            $stmt->bindParam(':tid', $tid);
 
-                        throw new Exception('Failed to fetch stats');
-                    }
-                    $data = array_merge($statsRes['data'], ['tid' => $tid, 'pid' => $pid]);
-                    $StatsService->Add($data);
-                }
+            if (! $stmt->execute()) {
+                error_log(json_encode($stmt->errorInfo()));
+                throw new Exception('Failed to update team pokemon');
+            }
+            $statsRes = $StatsService->UpdateByPokemon([
+                'pid' => $pid,
+                'tid' => $tid,
+                'stats' => $stats,
+            ]);
+
+            if (! isOk($statsRes['status'])) {
+                throw new Exception('Failed to update team pokemon stats');
             }
 
+            $movesRes = $MovesService->UpdateByPid([
+                'pid' => $pid,
+                'tid' => $tid,
+                'moves' => $moves,
+            ]);
+
+            if (! isOk($movesRes['status'])) {
+                throw new Exception('Failed to update team pokemon moves');
+            }
+
+            $this->updatedLastUpdated($tid);
             $db->commit();
 
             return [
@@ -456,6 +537,7 @@ class TeamService
                         throw new Exception('Failed to assign starter moves');
                     }
                 }
+                $this->updatedLastUpdated($tid);
             }
             $db->commit();
 
@@ -496,14 +578,14 @@ select
 	pc.type2 ,
 	pc.name,
 	pc.sprite_url,
+    pc.shiny_sprite_url,
 	s.hp,
 	s.attack,
 	s.defense,
 	s.spattack,
 	s.spdefense,
 	s.speed,
-	m.mid,
-	m.slot 
+	m.mid
 from
 	team_pokemon tm
 inner join pokemon_cache pc on
@@ -534,23 +616,26 @@ SQL;
                     'pid' => $pid,
                     'name' => $poke['name'],
                     'nickname' => $poke['nickname'],
+                    'is_shiny' => $poke['is_shiny'],
                     'sprite_url' => $poke['sprite_url'],
+                    'shiny_sprite_url' => $poke['shiny_sprite_url'],
+                    'level' => $poke['level'],
                     'type1' => $poke['type1'],
                     'type2' => $poke['type2'],
                     'stats' => [
-                        'hp' => $poke['hp'],
-                        'attack' => $poke['attack'],
-                        'defense' => $poke['defense'],
-                        'spattack' => $poke['spattack'],
-                        'spdefense' => $poke['spdefense'],
-                        'speed' => $poke['speed'],
+                        ['name' => 'hp', 'value' => $poke['hp']],
+                        ['name' => 'attack', 'value' => $poke['attack']],
+                        ['name' => 'defense', 'value' => $poke['defense']],
+                        ['name' => 'spattack', 'value' => $poke['spattack']],
+                        ['name' => 'spdefense', 'value' => $poke['spdefense']],
+                        ['name' => 'speed', 'value' => $poke['speed']],
                     ],
                     'moves' => [
-                        ['mid' => $poke['mid'], 'slot' => $poke['slot']],
+                        ['mid' => $poke['mid']],
                     ],
                 ];
             } else {
-                $pokemon[$pid]['moves'][] = ['mid' => $poke['mid'], 'slot' => $poke['slot']];
+                $pokemon[$pid]['moves'][] = ['mid' => $poke['mid']];
             }
         }
         $pokemon = array_values($pokemon);

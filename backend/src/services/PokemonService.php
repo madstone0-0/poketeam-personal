@@ -122,13 +122,14 @@ SQL;
     {
         global $db;
         $query = <<<'SQL'
-    INSERT INTO pokemon_cache (pid, name, type1, type2, sprite_url) 
-    VALUES (:pid, :name, :type1, :type2, :sprite_url)
+    INSERT INTO pokemon_cache (pid, name, type1, type2, sprite_url, shiny_sprite_url) 
+    VALUES (:pid, :name, :type1, :type2, :sprite_url, :shiny)
     ON DUPLICATE KEY UPDATE 
         name = :update_name, 
         type1 = :update_type1, 
         type2 = :update_type2, 
-        sprite_url = :update_sprite_url;
+        sprite_url = :update_sprite_url,
+        shiny_sprite_url = :update_shiny_sprite_url;
 SQL;
 
         $stmt = $db->prepare($query);
@@ -139,10 +140,12 @@ SQL;
             $stmt->bindValue(':type1', $pokemonData['type1']);
             $stmt->bindValue(':type2', $pokemonData['type2']);
             $stmt->bindValue(':sprite_url', $pokemonData['sprite_url']);
+            $stmt->bindValue(':shiny', $pokemonData['shiny_sprite_url']);
             $stmt->bindValue(':update_name', $pokemonData['name']);
             $stmt->bindValue(':update_type1', $pokemonData['type1']);
             $stmt->bindValue(':update_type2', $pokemonData['type2']);
             $stmt->bindValue(':update_sprite_url', $pokemonData['sprite_url']);
+            $stmt->bindValue(':update_shiny_sprite_url', $pokemonData['shiny_sprite_url']);
 
             if (! $stmt->execute()) {
                 return false;
@@ -159,36 +162,27 @@ SQL;
     {
         global $db;
         $query = <<<'SQL'
-insert
-	into
-	pokemon_cache (pid,
-	name,
-	type1,
-	type2,
-	sprite_url)
-values (:pid,
-:name,
-:type1,
-:type2,
-:sprite_url) on
-duplicate key
-update
-	pokemon_cache
-set
-	name = :name,
-	type1 = :type1,
-	type2 = :type2,
-	sprite_url = :sprite_url
-where
-	pid = :pid
-
+INSERT INTO pokemon_cache (pid, name, type1, type2, sprite_url, shiny_sprite_url)
+VALUES (:pid, :name, :type1, :type2, :sprite_url, :shiny)
+ON DUPLICATE KEY UPDATE
+name = :uname,
+type1 = :utype1,
+type2 = :utype2,
+sprite_url = :usprite_url,
+shiny_sprite_url = :ushiny;
 SQL;
         $stmt = $db->prepare($query);
         $stmt->bindParam(':name', formatPokemonName($pokemonData['name']));
         $stmt->bindParam(':type1', $pokemonData['type1']);
         $stmt->bindParam(':type2', $pokemonData['type2']);
         $stmt->bindParam(':sprite_url', $pokemonData['sprite_url']);
+        $stmt->bindParam(':shiny', $pokemonData['shiny_sprite_url']);
         $stmt->bindParam(':pid', $pokemonData['pid']);
+        $stmt->bindParam(':uname', formatPokemonName($pokemonData['name']));
+        $stmt->bindParam(':utype1', $pokemonData['type1']);
+        $stmt->bindParam(':utype2', $pokemonData['type2']);
+        $stmt->bindParam(':usprite_url', $pokemonData['sprite_url']);
+        $stmt->bindParam(':ushiny', $pokemonData['shiny_sprite_url']);
 
         if ($stmt->execute()) {
             return true;
@@ -267,6 +261,7 @@ SQL;
                         'type1' => $content['types'][0]['type']['name'],
                         'type2' => $content['types'][1]['type']['name'] ?? null,
                         'sprite_url' => $content['sprites']['front_default'],
+                        'shiny_sprite_url' => $content['sprites']['front_shiny'],
                     ];
 
                     if ($cache) {
@@ -314,6 +309,7 @@ SQL;
             'type1' => $content['types'][0]['type']['name'],
             'type2' => $content['types'][1]['type']['name'] ?? null,
             'sprite_url' => $content['sprites']['front_default'],
+            'shiny_sprite_url' => $content['sprites']['front_shiny'],
         ];
 
         if ($cache) {
@@ -368,6 +364,47 @@ SQL;
         }
     }
 
+    public function GetAll()
+    {
+        global $db;
+
+        $query = <<<'SQL'
+        select
+        	tp.pid,
+        	tp.tid,
+        	pc.name,
+        	tp.nickname,
+        	tp.`level`,
+        	tp.is_shiny,
+        	pc.type1,
+        	pc.type2,
+        	pc.sprite_url,
+        	pc.shiny_sprite_url,
+        	pc.last_updated
+        from
+        	team_pokemon tp
+        inner join pokemon_cache pc on
+        	pc.pid = tp.pid
+        group by
+        	tp.pid;
+SQL;
+        $stmt = $db->prepare($query);
+
+        if (! $stmt->execute()) {
+            return [
+                'status' => 500,
+                'data' => 'Failed to fetch pokemon data',
+            ];
+        }
+
+        $result = $stmt->fetchAll();
+
+        return [
+            'status' => 200,
+            'data' => $result,
+        ];
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -375,23 +412,7 @@ SQL;
     {
         $name = $data['name'];
 
-        try {
-            // $this->buildCache(); // Move to background job
-            error_log('Building cache in background');
-            $script = dirname(__DIR__).'/buildCache.php';
-            $logPath = dirname(__DIR__).'/cache_build.log';
-            $phpBinary = '/usr/bin/php';
-            $cmd = "$phpBinary $script > $logPath 2>&1 &";
-            $res = shell_exec($cmd);
-            error_log($res);
-        } catch (Exception $e) {
-            error_log($e->getMessage());
-
-            return [
-                'status' => 500,
-                'data' => 'Failed to fetch pokemon data',
-            ];
-        }
+        // Cache building moved to src/buildCache.php
 
         global $db;
 

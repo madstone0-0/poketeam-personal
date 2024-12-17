@@ -1,26 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import TeamCard from "../TeamCard";
 import { useUserQueriesAndMutations } from "../utils/queries";
-import { usePoke } from "../utils/hooks";
 import Modal from "../Modal";
 import Input from "../Input";
 import { useForm } from "@tanstack/react-form";
+import useStore from "../stores";
 
-const TeamGrid = ({ teams, limit = null, showControls = true }) => {
-    if (limit) {
-        teams = teams.slice(0, limit);
-    }
-    const { uidState } = usePoke();
-    const { uid } = uidState;
+const TeamGrid = ({ teams, limit = null, showControls = { create: true, view: true, del: true }, sortBy = null }) => {
+    const user = useStore((state) => state.user);
+    const { uid } = user;
+    const [displayTeams, setDisplayTeams] = useState([]);
+
     const { queries, mutations } = useUserQueriesAndMutations({ uid });
     const { teamDeleteMutation, teamCreateMutation } = mutations;
+    // const [teams, setTeams] = useState([]);
+
+    if (limit) {
+        if (teams.length > limit) {
+            teams = teams.slice(0, limit);
+        }
+    }
+
+    useEffect(() => {
+        if (sortBy) {
+            teams = teams.sort((a, b) => sortBy(a, b));
+        }
+    }, []);
 
     const onDelete = async (team) => {
-        console.log(`Deleting team ${team.tid}`);
         try {
             const res = await teamDeleteMutation.mutateAsync(team.tid);
-            console.log({ res });
         } catch (e) {
             console.error({ e });
         }
@@ -64,7 +74,6 @@ const TeamGrid = ({ teams, limit = null, showControls = true }) => {
             const modal = document.getElementById("createTeamModal");
             try {
                 const res = await teamCreateMutation.mutateAsync({ id: uid, name: value.teamName });
-                console.log({ res });
                 value.teamName = "";
                 modal.close();
             } catch (e) {
@@ -75,7 +84,7 @@ const TeamGrid = ({ teams, limit = null, showControls = true }) => {
 
     return (
         <div className="flex flex-col">
-            {showControls ? (
+            {showControls.create ? (
                 <button onClick={handleCreate} className="text-xl btn btn-primary">
                     Create Team
                 </button>
@@ -121,6 +130,7 @@ const TeamGrid = ({ teams, limit = null, showControls = true }) => {
                                 name="teamName"
                                 children={(field) => (
                                     <Input
+                                        Icon={() => <h1 className="font-bold">Team Name</h1>}
                                         name={field.name}
                                         value={field.state.value}
                                         onChange={(e) => field.handleChange(e.target.value)}

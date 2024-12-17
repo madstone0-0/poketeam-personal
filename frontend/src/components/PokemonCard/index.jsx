@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./index.css";
-import { useNavigate } from "react-router-dom";
+import TypeBadge from "../TypeBadge";
 import "./index.css";
+import StatsDisplay from "../StatsDisplay";
+import PokemonSpriteDisplay from "../PokemonSpriteDisplay";
 
 const PokemonCard = ({
     pokemon,
@@ -11,6 +13,7 @@ const PokemonCard = ({
     clickableCard = true,
 }) => {
     const [clicked, setClicked] = useState(false);
+    const [showStats, setShowStats] = useState(false);
 
     let name;
     let pid;
@@ -32,10 +35,14 @@ const PokemonCard = ({
         sprite_url = pokemon.sprite_url;
     }
 
-    let baseClassName = "m-5 w-96 h-fit shadow-xl hover:cursor-pointer  pokemon-card card bg-base-200";
-    const className = clicked
-        ? baseClassName + " border-4 border-primary"
-        : baseClassName + " border-4 border-transparent";
+    let baseClassName =
+        "m-5 w-[70vw] md:w-96 h-fit shadow-xl hover:cursor-pointer rounded-xl card-compact pokemon-card card bg-base-100";
+    let className = baseClassName;
+    if (searchCard) {
+        className = clicked ? className + " border-4 border-primary" : className + " border-4 border-transparent";
+    } else {
+        className = className + " border-0 border-transparent";
+    }
 
     useEffect(() => {
         if (pickedPokemon.has(pid)) {
@@ -51,83 +58,53 @@ const PokemonCard = ({
         onClick(pokemon);
     };
 
-    const mapTypeToColor = (type) => {
-        switch (type) {
-            case "normal":
-                return "bg-gray-400";
-            case "fire":
-                return "bg-red-600";
-            case "water":
-                return "bg-blue-600";
-            case "electric":
-                return "bg-yellow-600";
-            case "grass":
-                return "bg-green-600";
-            case "ice":
-                return "bg-blue-300";
-            case "fighting":
-                return "bg-red-800";
-            case "poison":
-                return "bg-purple-600";
-            case "ground":
-                return "bg-yellow-800";
-            case "flying":
-                return "bg-blue-400";
-            case "psychic":
-                return "bg-purple-400";
-            case "bug":
-                return "bg-green-400";
-            case "rock":
-                return "bg-yellow-700";
-            case "ghost":
-                return "bg-purple-800";
-            case "dragon":
-                return "bg-blue-800";
-            case "dark":
-                return "bg-gray-800";
-            case "steel":
-                return "bg-gray-600";
-            case "fairy":
-                return "bg-pink-400";
-            default:
-                return "bg-gray-400";
-        }
-    };
-
-    const formatType = (type) => {
-        return type.toUpperCase();
-    };
-
     const renderMain = () => {
         const common = () => (
             <div className="justify-end card-actions">
-                <div className={`badge rounded-none text-white badge-outline ${mapTypeToColor(type1)}`}>
-                    {formatType(type1)}
-                </div>
-                {type2 && (
-                    <div className={`badge rounded-none  text-white  badge-outline ${mapTypeToColor(type2)}`}>
-                        {formatType(type2)}
-                    </div>
-                )}
+                <TypeBadge type={type1} />
+                {type2 && <TypeBadge type={type2} />}
             </div>
         );
 
         if (searchCard) {
             return <>{common()}</>;
         } else {
-            return <>{common()}</>;
+            return (
+                <>
+                    {common()}
+                    <div className="mt-3 mb-3">
+                        <h1 className="text-center">Level: {pokemon.level}</h1>
+                    </div>
+                </>
+            );
         }
     };
+
+    const renderBottom = () => {
+        if (searchCard) {
+            return <></>;
+        }
+        return (
+            <div className="p-0 mb-0 w-full h-full rounded-b-xl bg-base-300">
+                <StatsDisplay stats={pokemon.stats} />
+            </div>
+        );
+    };
+
+    if (pokemon === null) {
+        return <></>;
+    }
 
     return (
         <div onClick={handleOnClick} className={className}>
             <figure>
-                <img src={sprite_url} alt={name} />
+                <PokemonSpriteDisplay className="w-1/2" pokemon={pokemon} />
             </figure>
-            <div className="card-body">
-                <h2 className="card-title">{name}</h2>
+            <div className="pb-0 mb-0 card-body">
+                <h2 className="self-center text-center card-title">{name}</h2>
                 {renderMain()}
             </div>
+            {renderBottom()}
         </div>
     );
 };

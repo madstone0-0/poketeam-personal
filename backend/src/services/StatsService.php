@@ -78,6 +78,48 @@ class StatsService
         ];
     }
 
+    public function UpdateByPokemon($data)
+    {
+        $pid = $data['pid'];
+        $tid = $data['tid'];
+        $stats = $data['stats'];
+
+        $query = <<<'SQL'
+            update stats set
+                hp = :hp,
+                attack = :attack,
+                defense = :defense,
+                spattack = :spattack,
+                spdefense = :spdefense,
+                speed = :speed
+            where pid = :pid and tid = :tid
+        SQL;
+
+        global $db;
+        $stmt = $db->prepare($query);
+        foreach ($stats as $stat) {
+            $stmt->bindParam(':'.$stat['name'], $stat['value']);
+        }
+
+        $stmt->bindParam(':pid', $pid);
+        $stmt->bindParam(':tid', $tid);
+
+        if (! $stmt->execute()) {
+            error_log('Failed to update stats');
+
+            return [
+                'status' => 500,
+                'data' => 'Failed to update stats',
+            ];
+        }
+
+        return [
+            'status' => 200,
+            'data' => ['msg' => 'Stats updated successfully'],
+        ];
+
+    }
+
     public function Add($data)
     {
         global $db;

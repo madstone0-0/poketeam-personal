@@ -3,12 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Mail, KeyRound, Eye, EyeClosed } from "lucide-react";
 import { useSnackbar } from "notistack";
 import { API_BASE, LOGIN } from "../constants";
-import { usePoke } from "../utils/hooks";
+import useStore from "../stores";
 import { fetch } from "../utils/Fetch";
 import { validate, noneEmpty, getErrMsgIfExists } from "../utils";
 import "./index.css";
 import Input from "../Input";
 import Header from "../Header";
+import withLoading from "../WithLoading";
 
 const Login = ({ headerItems }) => {
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -16,13 +17,9 @@ const Login = ({ headerItems }) => {
     const [password, updatePassword] = useState("");
     const [pwdHidden, updatePwdState] = useReducer((hidden) => !hidden, false);
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
-    const { uidState, usernameState, emailState, fnameState, lnameState } = usePoke();
-    const { uid, updateUid } = uidState;
-    const { username, updateUsername } = usernameState;
-    const { emailGlobal, updateEmail } = emailState;
-    const { fname, updateFname } = fnameState;
-    const { lname, updateLname } = lnameState;
+    const reset = useStore((state) => state.reset);
 
     const onEmailChange = (e) => {
         e.preventDefault();
@@ -43,6 +40,7 @@ const Login = ({ headerItems }) => {
     };
 
     const onLogin = async (e) => {
+        setLoading(true);
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
@@ -50,34 +48,39 @@ const Login = ({ headerItems }) => {
 
         if (!noneEmpty(Array.from(Object.values(data)))) {
             enqueueSnackbar("Please fill in all fields", { variant: "error" });
+            setLoading(false);
             return;
         }
 
         try {
             validate(data["password"], data["email"]);
         } catch (e) {
+            setLoading(false);
             enqueueSnackbar(`Login error: ${e.message}`, { variant: "error" });
             return;
         }
 
         try {
             const res = await fetch.post(`${API_BASE}${LOGIN}`, data);
-            console.log({ res });
 
             enqueueSnackbar("Login successful", { variant: "success" });
             const d = res.data;
-            console.log({ d });
             updateEmailLocal("");
             updatePassword("");
 
-            updateUid(d.uid);
-            updateUsername(d.uname);
-            updateEmail(d.email);
-            updateFname(d.fname);
-            updateLname(d.lname);
+            reset({
+                username: d.uname,
+                email: d.email,
+                fname: d.fname,
+                lname: d.lname,
+                uid: d.uid,
+                admin: d.is_admin,
+            });
+
+            setLoading(false);
             navigate(`/home/`);
         } catch (e) {
-            console.log({ e });
+            setLoading(false);
             const msg = getErrMsgIfExists(e) || e.message;
             if (msg instanceof Object) {
                 enqueueSnackbar(`Login error: ${msg.err}`, { variant: "error" });
@@ -120,7 +123,7 @@ const Login = ({ headerItems }) => {
                             </button>,
                         ]}
                     />
-                    <button className="btn btn-primary" type="submit">
+                    <button disabled={loading} className="btn btn-primary" type="submit">
                         Login
                     </button>
                 </form>

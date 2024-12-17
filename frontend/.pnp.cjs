@@ -37,6 +37,7 @@ const RAW_RUNTIME_STATE =
           ["@vitejs/plugin-react", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.3.3"],\
           ["@vitejs/plugin-react-swc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.7.2"],\
           ["@welldone-software/why-did-you-render", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:8.0.3"],\
+          ["apexcharts", "npm:4.2.0"],\
           ["autoprefixer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:10.4.20"],\
           ["axios", "npm:1.7.7"],\
           ["babel-eslint", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:10.1.0"],\
@@ -52,6 +53,7 @@ const RAW_RUNTIME_STATE =
           ["notistack", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.0.1"],\
           ["postcss", "npm:8.4.49"],\
           ["react", "npm:18.3.1"],\
+          ["react-apexcharts", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.0"],\
           ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.3.1"],\
           ["react-query", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.39.3"],\
           ["react-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.1"],\
@@ -1143,6 +1145,95 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@svgdotjs/svg.draggable.js", [\
+      ["npm:3.0.4", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@svgdotjs-svg.draggable.js-npm-3.0.4-99e2064fda-10c0.zip/node_modules/@svgdotjs/svg.draggable.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.draggable.js", "npm:3.0.4"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:3.0.4", {\
+        "packageLocation": "./.yarn/__virtual__/@svgdotjs-svg.draggable.js-virtual-a7f8d887fd/10/home/mads/.yarn/berry/cache/@svgdotjs-svg.draggable.js-npm-3.0.4-99e2064fda-10c0.zip/node_modules/@svgdotjs/svg.draggable.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.draggable.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:3.0.4"],\
+          ["@svgdotjs/svg.js", "npm:3.2.4"],\
+          ["@types/svgdotjs__svg.js", null]\
+        ],\
+        "packagePeers": [\
+          "@svgdotjs/svg.js",\
+          "@types/svgdotjs__svg.js"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@svgdotjs/svg.filter.js", [\
+      ["npm:3.0.8", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@svgdotjs-svg.filter.js-npm-3.0.8-1af91ad5a0-10c0.zip/node_modules/@svgdotjs/svg.filter.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.filter.js", "npm:3.0.8"],\
+          ["@svgdotjs/svg.js", "npm:3.2.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@svgdotjs/svg.js", [\
+      ["npm:3.2.4", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@svgdotjs-svg.js-npm-3.2.4-e1dfac9908-10c0.zip/node_modules/@svgdotjs/svg.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.js", "npm:3.2.4"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@svgdotjs/svg.resize.js", [\
+      ["npm:2.0.5", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@svgdotjs-svg.resize.js-npm-2.0.5-b43f854246-10c0.zip/node_modules/@svgdotjs/svg.resize.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.resize.js", "npm:2.0.5"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:2.0.5", {\
+        "packageLocation": "./.yarn/__virtual__/@svgdotjs-svg.resize.js-virtual-1a1e3e2f57/10/home/mads/.yarn/berry/cache/@svgdotjs-svg.resize.js-npm-2.0.5-b43f854246-10c0.zip/node_modules/@svgdotjs/svg.resize.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.resize.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:2.0.5"],\
+          ["@svgdotjs/svg.js", "npm:3.2.4"],\
+          ["@svgdotjs/svg.select.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:4.0.2"],\
+          ["@types/svgdotjs__svg.js", null],\
+          ["@types/svgdotjs__svg.select.js", null]\
+        ],\
+        "packagePeers": [\
+          "@svgdotjs/svg.js",\
+          "@svgdotjs/svg.select.js",\
+          "@types/svgdotjs__svg.js",\
+          "@types/svgdotjs__svg.select.js"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@svgdotjs/svg.select.js", [\
+      ["npm:4.0.2", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@svgdotjs-svg.select.js-npm-4.0.2-c6d8a0ab6d-10c0.zip/node_modules/@svgdotjs/svg.select.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.select.js", "npm:4.0.2"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:4.0.2", {\
+        "packageLocation": "./.yarn/__virtual__/@svgdotjs-svg.select.js-virtual-7e25b0d68b/10/home/mads/.yarn/berry/cache/@svgdotjs-svg.select.js-npm-4.0.2-c6d8a0ab6d-10c0.zip/node_modules/@svgdotjs/svg.select.js/",\
+        "packageDependencies": [\
+          ["@svgdotjs/svg.select.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:4.0.2"],\
+          ["@svgdotjs/svg.js", "npm:3.2.4"],\
+          ["@types/svgdotjs__svg.js", null]\
+        ],\
+        "packagePeers": [\
+          "@svgdotjs/svg.js",\
+          "@types/svgdotjs__svg.js"\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@swc/core", [\
       ["npm:1.9.3", {\
         "packageLocation": "./.yarn/unplugged/@swc-core-virtual-f4e2d593aa/node_modules/@swc/core/",\
@@ -1583,6 +1674,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["@yr/monotone-cubic-spline", [\
+      ["npm:1.0.3", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@yr-monotone-cubic-spline-npm-1.0.3-a6469f7958-10c0.zip/node_modules/@yr/monotone-cubic-spline/",\
+        "packageDependencies": [\
+          ["@yr/monotone-cubic-spline", "npm:1.0.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["@zxing/text-encoding", [\
       ["npm:0.9.0", {\
         "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/@zxing-text-encoding-npm-0.9.0-8426ff59e9-10c0.zip/node_modules/@zxing/text-encoding/",\
@@ -1725,6 +1825,21 @@ const RAW_RUNTIME_STATE =
           ["anymatch", "npm:3.1.3"],\
           ["normalize-path", "npm:3.0.0"],\
           ["picomatch", "npm:2.3.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["apexcharts", [\
+      ["npm:4.2.0", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/apexcharts-npm-4.2.0-903024ada7-10c0.zip/node_modules/apexcharts/",\
+        "packageDependencies": [\
+          ["apexcharts", "npm:4.2.0"],\
+          ["@svgdotjs/svg.draggable.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:3.0.4"],\
+          ["@svgdotjs/svg.filter.js", "npm:3.0.8"],\
+          ["@svgdotjs/svg.js", "npm:3.2.4"],\
+          ["@svgdotjs/svg.resize.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:2.0.5"],\
+          ["@svgdotjs/svg.select.js", "virtual:903024ada7a17be6cbab44384afd0134ae604523831838360c8190f35daa24391edb476cb6b5def4d7348a624818f864c7d38146ac452d47027cfaced59a7176#npm:4.0.2"],\
+          ["@yr/monotone-cubic-spline", "npm:1.0.3"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3146,6 +3261,7 @@ const RAW_RUNTIME_STATE =
           ["@vitejs/plugin-react", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:4.3.3"],\
           ["@vitejs/plugin-react-swc", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.7.2"],\
           ["@welldone-software/why-did-you-render", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:8.0.3"],\
+          ["apexcharts", "npm:4.2.0"],\
           ["autoprefixer", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:10.4.20"],\
           ["axios", "npm:1.7.7"],\
           ["babel-eslint", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:10.1.0"],\
@@ -3161,6 +3277,7 @@ const RAW_RUNTIME_STATE =
           ["notistack", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.0.1"],\
           ["postcss", "npm:8.4.49"],\
           ["react", "npm:18.3.1"],\
+          ["react-apexcharts", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.0"],\
           ["react-dom", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:18.3.1"],\
           ["react-query", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:3.39.3"],\
           ["react-router", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:7.0.1"],\
@@ -5006,6 +5123,33 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["react", "npm:18.3.1"],\
           ["loose-envify", "npm:1.4.0"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["react-apexcharts", [\
+      ["npm:1.7.0", {\
+        "packageLocation": "../../../../../../../../../home/mads/.yarn/berry/cache/react-apexcharts-npm-1.7.0-334ef0640d-10c0.zip/node_modules/react-apexcharts/",\
+        "packageDependencies": [\
+          ["react-apexcharts", "npm:1.7.0"]\
+        ],\
+        "linkType": "SOFT"\
+      }],\
+      ["virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.0", {\
+        "packageLocation": "./.yarn/__virtual__/react-apexcharts-virtual-317b6e015b/10/home/mads/.yarn/berry/cache/react-apexcharts-npm-1.7.0-334ef0640d-10c0.zip/node_modules/react-apexcharts/",\
+        "packageDependencies": [\
+          ["react-apexcharts", "virtual:d9650954c7f1725ea712d2e40695de9ea5d1c0fa9b89379134c62909d440d91b03d6c37e2823804a3404472b90a5bec73c82193190dd3c4db4c9e9edd75db91e#npm:1.7.0"],\
+          ["@types/apexcharts", null],\
+          ["@types/react", "npm:18.3.12"],\
+          ["apexcharts", "npm:4.2.0"],\
+          ["prop-types", "npm:15.8.1"],\
+          ["react", "npm:18.3.1"]\
+        ],\
+        "packagePeers": [\
+          "@types/apexcharts",\
+          "@types/react",\
+          "apexcharts",\
+          "react"\
         ],\
         "linkType": "HARD"\
       }]\

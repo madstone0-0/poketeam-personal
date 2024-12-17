@@ -9,20 +9,6 @@ module.exports = {
     daisyui: {
         themes: [
             {
-                //dark: {
-                //    primary: "#EF5350",
-                //    secondary: "#e4e4e4",
-                //    accent: "#37cdbe",
-                //    neutral: "#3d4451",
-                //    "base-100": "#1e1e1e",
-                //},
-                //light: {
-                //    primary: "#EF5350",
-                //    secondary: "#f6d860",
-                //    accent: "#37cdbe",
-                //    neutral: "#3d4451",
-                //    "base-100": "#ffffff",
-                //},
                 dark: {
                     primary: "#FF6347", // Inspired by fiery Pokémon like Charizard
                     secondary: "#FFDD57", // Reflects the yellow of Pikachu

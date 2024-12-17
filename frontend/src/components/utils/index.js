@@ -1,6 +1,14 @@
 import { API_BASE } from "../constants";
 import { fetch } from "./Fetch";
 
+export const getDateString = (date) => {
+    return date.toISOString().split("T")[0];
+};
+
+export const getStringDate = (date) => {
+    return new Date(date);
+};
+
 export const noneEmpty = (arr) => {
     return arr.every((item) => item !== "");
 };
@@ -14,15 +22,43 @@ export const formatPokemonName = (name) => {
 export const validate = (password, email) => {
     const emailRegex = /(\w+)@(\w+).(\w{2,})/;
     const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}$/;
+    const passwordRegexes = [
+        {
+            msg: "Must be at least 8 characters long",
+            regex: /.{8,}/,
+        },
+        {
+            msg: "Must have at least one uppercase letter",
+            regex: /[A-Z]/,
+        },
+        {
+            msg: "Must include at least 3 digits",
+            regex: /^(?=(.*\d.*){3,})/,
+        },
+        {
+            msg: "Must contain at least one special character",
+            regex: /[!@#$%^&*()\-_=+\[\]{};:'",<.>\/?\\|`~]/,
+        },
+    ];
 
     if (!emailRegex.test(email)) {
         throw Error("Invalid email address");
     }
 
-    if (!passwordRegex.test(password)) {
-        throw Error(
-            "Invalid password\nYour password should be between 8 and 32 characters and not contain long repeating seqeunces",
-        );
+    let problems = [];
+    let result = true;
+
+    const boolArr = passwordRegexes.map((item) => {
+        const { msg, regex } = item;
+        const matchRes = regex.test(password);
+        if (!matchRes) problems.push(msg);
+        if (result) {
+            result = matchRes;
+        }
+    });
+
+    if (!result) {
+        throw Error(problems.join("\n"));
     }
 };
 

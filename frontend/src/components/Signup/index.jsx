@@ -1,25 +1,23 @@
 import React, { useState, useReducer } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Mail, KeyRound, Eye, EyeClosed, User } from "lucide-react";
 import { useSnackbar } from "notistack";
 import { API_BASE, SIGNUP } from "../constants";
-import { usePoke } from "../utils/hooks";
 import { fetch } from "../utils/Fetch";
 import { validate, noneEmpty, getErrMsgIfExists } from "../utils";
 import Input from "../Input";
 import Header from "../Header";
 
 const Signup = ({ headerItems }) => {
-    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const [email, updateEmail] = useState("");
     const [username, updateUsername] = useState("");
     const [fname, updateFname] = useState("");
     const [lname, updateLname] = useState("");
     const [password, updatePassword] = useState("");
     const [pwdHidden, updatePwdState] = useReducer((hidden) => !hidden, false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-    const { uidState, usernameState, emailState, fnameState, lnameState } = usePoke();
 
     const onEmailChange = (e) => {
         e.preventDefault();
@@ -55,14 +53,15 @@ const Signup = ({ headerItems }) => {
     };
 
     const onSignup = async (e) => {
+        setLoading(true);
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries());
-        console.log({ data });
 
         if (!noneEmpty(Array.from(Object.values(data)))) {
             enqueueSnackbar("Please fill in all fields", { variant: "error" });
+            setLoading(false);
             return;
         }
 
@@ -70,6 +69,7 @@ const Signup = ({ headerItems }) => {
             validate(data["password"], data["email"]);
         } catch (e) {
             enqueueSnackbar(`Signup error: ${e.message}`, { variant: "error" });
+            setLoading(false);
             return;
         }
 
@@ -82,14 +82,17 @@ const Signup = ({ headerItems }) => {
             updateUsername("");
             updateFname("");
             updateLname("");
+            setLoading(false);
             navigate("/login");
         } catch (e) {
             const msg = getErrMsgIfExists(e) || e.message;
             if (msg instanceof Object) {
                 enqueueSnackbar(`Signup error: ${msg.err}`, { variant: "error" });
                 msg.problems.forEach((p) => enqueueSnackbar(`${p}`, { variant: "error" }));
+                setLoading(false);
             } else {
                 enqueueSnackbar(`Signup error: ${msg}`, { variant: "error" });
+                setLoading(false);
             }
         }
     };
@@ -153,7 +156,7 @@ const Signup = ({ headerItems }) => {
                         value={username}
                         onChange={onUsernameChange}
                     />
-                    <button className="btn btn-primary" type="submit">
+                    <button disabled={loading} className="btn btn-primary" type="submit">
                         Sign Up
                     </button>
                 </form>

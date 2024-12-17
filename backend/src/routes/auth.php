@@ -11,6 +11,7 @@ $authRoutes = [
     'POST' => [
         'signup' => signUp(...), 'login' => login(...),
     ],
+    'PUT' => ['update' => updateAccount(...)],
     'DELETE' => ['delete' => deleteAccount(...)],
 ];
 
@@ -21,6 +22,18 @@ function logout()
     session_unset();
     session_abort();
     sendData('Logged out', 200);
+}
+
+function updateAccount($data)
+{
+    global $UserService;
+    $res = $UserService->Update($data);
+    if (! isOk($res['status'])) {
+        sendError($res['data'], $res['status']);
+
+        return;
+    }
+    sendData($res['data'], $res['status']);
 }
 
 function signUp($data)
@@ -55,6 +68,10 @@ function login($data)
 
 function deleteAccount($id)
 {
+    if (! checkUserAuth()) {
+        return;
+    }
+
     global $UserService;
     $res = $UserService->Delete($id);
     if (! isOk($res['status'])) {
@@ -62,7 +79,6 @@ function deleteAccount($id)
 
         return;
     }
-    session_destroy();
     sendData($res['data'], $res['status']);
 }
 

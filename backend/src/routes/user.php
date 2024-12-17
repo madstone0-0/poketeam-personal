@@ -6,20 +6,9 @@ require_once __DIR__.'/../utils.php';
 require_once __DIR__.'/user/team.php';
 require_once __DIR__.'/user/pokemon.php';
 
-function checkAuth()
-{
-    if (! isset($_SESSION['user'])) {
-        sendError('Unauthorized', 401);
-
-        return false;
-    }
-
-    return true;
-}
-
 function pong()
 {
-    if (! checkAuth()) {
+    if (! checkUserAuth()) {
         return;
     }
     sendData('pong', 200);
@@ -37,9 +26,15 @@ function userHandler($verb, $subroute)
             pong();
             break;
         case 'team':
+            if (! checkUserAuth()) {
+                return;
+            }
             teamHandler($verb, $subroute);
             break;
         case 'pokemon':
+            if (! checkUserAuth()) {
+                return;
+            }
             pokemonHandler($verb, $subroute);
             break;
         default:
