@@ -156,8 +156,7 @@ const TeamSingleView = ({
         // Then add pokemon
         if (pickedPokemon.size > 0) {
             if (pickedPokemon.size > 6) {
-                enqueueSnackbar("Too many Pokemon selected", { variant: "error" });
-                toggleEditMode();
+                enqueueSnackbar("Too many Pokemon selected max number is 6", { variant: "error" });
                 return;
             }
 

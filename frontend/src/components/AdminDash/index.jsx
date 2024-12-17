@@ -441,20 +441,20 @@ const AdminIndex = () => {
                     </div>
                 </div>
             </div>
-            <div className="w-full shadow-xl card bg-base-100">
-                <div className="card-body">
-                    <h2 className="card-title">Pokemon Type Distribution</h2>
-                    <div className="grid justify-center place-items-center px-2 mt-4 card-body">
-                        {pokemonQuery.isLoading ? (
-                            <div className="flex justify-center items-center w-full h-full">
-                                <span className="loading loading-dots loading-lg"></span>
-                            </div>
-                        ) : (
-                            <Chart {...chartConfig} />
-                        )}
-                    </div>
-                </div>
-            </div>
+            {/* <div className="w-full shadow-xl card bg-base-100"> */}
+            {/*     <div className="card-body"> */}
+            {/*         <h2 className="card-title">Pokemon Type Distribution</h2> */}
+            {/*         <div className="grid justify-center place-items-center px-2 mt-4 card-body"> */}
+            {/*             {pokemonQuery.isLoading ? ( */}
+            {/*                 <div className="flex justify-center items-center w-full h-full"> */}
+            {/*                     <span className="loading loading-dots loading-lg"></span> */}
+            {/*                 </div> */}
+            {/*             ) : ( */}
+            {/*                 <Chart {...chartConfig} /> */}
+            {/*             )} */}
+            {/*         </div> */}
+            {/*     </div> */}
+            {/* </div> */}
         </div>
     );
 };

@@ -596,7 +596,6 @@ inner join moves m on
 	m.pid = tm.pid
 where
 	tm.tid = ?
--- GROUP by tm.pid;
 SQL;
         $stmt = $db->prepare($query);
         $stmt->bindParam(1, $tid);

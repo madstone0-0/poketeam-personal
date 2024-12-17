@@ -385,8 +385,6 @@ SQL;
         	team_pokemon tp
         inner join pokemon_cache pc on
         	pc.pid = tp.pid
-        group by
-        	tp.pid;
 SQL;
         $stmt = $db->prepare($query);
 

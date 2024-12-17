@@ -38,10 +38,6 @@ function updateAccount($data)
 
 function signUp($data)
 {
-    if (! handleEmpty($data) || ! handleEmail($data['email']) || ! handlePasswordProblems($data['password'])) {
-        return;
-    }
-
     global $UserService;
     $res = $UserService->SignUp($data);
     if (! isOk($res['status'])) {

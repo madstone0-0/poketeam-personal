@@ -57,7 +57,7 @@ const Signup = ({ headerItems }) => {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const data = { ...Object.fromEntries(formData.entries()), is_admin: 0 };
 
         if (!noneEmpty(Array.from(Object.values(data)))) {
             enqueueSnackbar("Please fill in all fields", { variant: "error" });

@@ -18,12 +18,15 @@ import {
     updateUser,
     getAllPokemon,
 } from "./api";
+import { useNavigate } from "react-router-dom";
 import useStore from "../stores";
 
 export const doOnError = (err, feebackFn) => {
     let err_msg = "";
+    let err_code = 0;
     if (err instanceof AxiosError) {
         err_msg = err.response.data.msg;
+        err_code = err.response.status;
         if (err_msg === undefined) err_msg = err.message;
     } else if (err instanceof Error) {
         err_msg = err.message;
@@ -31,7 +34,7 @@ export const doOnError = (err, feebackFn) => {
         err_msg = "Unknown error";
     }
 
-    feebackFn(err_msg);
+    feebackFn(err_msg, err_code);
 };
 
 export const doOnSuccessMsg = async (res, queryKey, callback = successCallback) => {
@@ -42,16 +45,21 @@ export const doOnSuccessMsg = async (res, queryKey, callback = successCallback) 
 const useAdminQueriesAndMutations = () => {
     const queryClient = useQueryClient();
     const { enqueueSnackbar } = useSnackbar();
+    const nav = useNavigate();
 
     const usersQuery = useQuery({
         queryKey: "users",
         queryFn: () => getAllUsers(),
         onError: (err) =>
-            doOnError(err, (msg) =>
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to get users: ${msg}`, {
                     variant: "error",
-                }),
-            ),
+                });
+
+                if (code === 401) {
+                    nav("/login");
+                }
+            }),
         staleTime: 10000,
         refetchInterval: 30000,
     });
@@ -60,11 +68,15 @@ const useAdminQueriesAndMutations = () => {
         queryKey: "allTeams",
         queryFn: () => getAllTeams(),
         onError: (err) =>
-            doOnError(err, (msg) =>
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to get teams: ${msg}`, {
                     variant: "error",
-                }),
-            ),
+                });
+
+                if (code === 401) {
+                    nav("/login");
+                }
+            }),
         staleTime: 10000,
         refetchInterval: 300000,
     });
@@ -73,11 +85,15 @@ const useAdminQueriesAndMutations = () => {
         queryKey: "allPokemon",
         queryFn: () => getAllPokemon(),
         onError: (err) =>
-            doOnError(err, (msg) =>
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to get teams: ${msg}`, {
                     variant: "error",
-                }),
-            ),
+                });
+
+                if (code === 401) {
+                    nav("/login");
+                }
+            }),
         staleTime: 10000,
         refetchInterval: 300000,
     });
@@ -90,10 +106,13 @@ const useAdminQueriesAndMutations = () => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to delete user: ${msg}`, {
                     variant: "error",
                 });
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -105,10 +124,13 @@ const useAdminQueriesAndMutations = () => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to update user: ${msg}`, {
                     variant: "error",
                 });
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -127,11 +149,15 @@ const useUserQueriesAndMutations = (user) => {
         queryKey: "teams",
         queryFn: () => getTeams(user.uid),
         onError: (err) =>
-            doOnError(err, (msg) =>
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to get teams: ${msg}`, {
                     variant: "error",
-                }),
-            ),
+                });
+
+                if (code === 401) {
+                    nav("/login");
+                }
+            }),
         staleTime: 10000,
         refetchInterval: 300000000,
     });
@@ -140,11 +166,15 @@ const useUserQueriesAndMutations = (user) => {
         queryKey: "teamPokemon",
         queryFn: () => getTeamInfoById(user.tid),
         onError: (err) =>
-            doOnError(err, (msg) =>
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to get team pokemon: ${msg}`, {
                     variant: "error",
-                }),
-            ),
+                });
+
+                if (code === 401) {
+                    nav("/login");
+                }
+            }),
         enabled: false,
         staleTime: 5000,
     });
@@ -157,10 +187,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to add pokemon to team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -172,10 +206,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to update pokemon in team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -187,10 +225,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to delete pokemon from team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -202,10 +244,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to delete pokemon from team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -217,10 +263,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to update team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -232,10 +282,14 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to add team: ${msg}`, {
                     variant: "error",
                 });
+
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 
@@ -247,10 +301,13 @@ const useUserQueriesAndMutations = (user) => {
                 await queryClient.invalidateQueries({ queryKey: ["teams"] });
             }),
         onError: (err) =>
-            doOnError(err, (msg) => {
+            doOnError(err, (msg, code) => {
                 enqueueSnackbar(`Failed to delete team: ${msg}`, {
                     variant: "error",
                 });
+                if (code === 401) {
+                    nav("/login");
+                }
             }),
     });
 

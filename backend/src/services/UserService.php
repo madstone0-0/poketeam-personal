@@ -46,7 +46,7 @@ class UserService
         $email = $data['email'];
         $uname = $data['username'];
         $password = $data['password'];
-        $is_admin = isset($data['is_admin']) ? $data['is_admin'] : false;
+        $is_admin = isset($data['is_admin']) ? $data['is_admin'] : 0;
 
         if ($this->doesUserExist($email)) {
             return [

@@ -47,7 +47,7 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
             pickMove(moves.filter((m) => m.mid !== move.id));
         } else {
             if (moves.length >= MAX_MOVES) {
-                enqueueSnackbar("Too many moves", { variant: "error" });
+                enqueueSnackbar("Too many moves selected max number is 4", { variant: "error" });
                 return;
             }
             pickMove([...moves, { mid: move.id }]);

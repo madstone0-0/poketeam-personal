@@ -7,9 +7,9 @@ drop table if exists team_pokemon;
 
 drop table if exists team;
 
--- drop table if exists user;
+drop table if exists user;
 
--- drop table if exists pokemon_cache;
+drop table if exists pokemon_cache;
 
 -- create database if not exists webtech_fall2024_madiba_quansah;
 use webtech_fall2024_madiba_quansah;
