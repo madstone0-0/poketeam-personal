@@ -17,7 +17,7 @@ class MovesService
         $this->pokemonService = new PokemonService;
     }
 
-    private function getMoveCount($pid, $tid)
+    public function getMoveCount($pid, $tid)
     {
         global $db;
         $query = <<<'SQL'

@@ -530,6 +530,9 @@ class TeamService
 
                     continue;
                 } else {
+                    if ($MovesService->getMoveCount($pid, $tid) != 0) {
+                        continue;
+                    }
                     $movesRes = $MovesService->AssignRandomMoves(['tid' => $tid, 'pid' => $pid]);
                     if (! isOk($movesRes['status'])) {
                         error_log('Failed to assign moves');
@@ -537,8 +540,9 @@ class TeamService
                         throw new Exception('Failed to assign starter moves');
                     }
                 }
-                $this->updatedLastUpdated($tid);
             }
+
+            $this->updatedLastUpdated($tid);
             $db->commit();
 
             return [
