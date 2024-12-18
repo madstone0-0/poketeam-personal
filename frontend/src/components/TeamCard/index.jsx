@@ -10,7 +10,7 @@ const TeamCard = ({ team, showControls = { view: true, del: true }, handleDelete
 
     const onView = (e) => {
         e.preventDefault();
-        navigate(`${team.tid}`);
+        navigate(`/home/teams/${team.tid}`);
         setSelectedTeam(team.tid);
     };
 

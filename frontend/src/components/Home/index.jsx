@@ -146,7 +146,7 @@ const HomeContent = ({ teams }) => {
                         <TeamGrid
                             teams={teams}
                             limit={3}
-                            showControls={{ view: false }}
+                            showControls={{ view: true }}
                             sortBy={(a, b) => {
                                 return getStringDate(a.updated_at) - getStringDate(b.updated_at);
                             }}

@@ -18,10 +18,10 @@ const Hero = ({ headerItems }) => {
     return (
         <>
             <Header headerItems={headerItems} />
-            <div className="min-h-screen hero bg-base-200">
+            <div className="w-full h-screen hero bg-base-200">
                 <div className="text-center hero-content">
                     <div className="max-w-md">
-                        <h1 className="text-7xl font-bold pokemon">Poketeam</h1>
+                        <h1 className="text-6xl font-bold md:text-7xl pokemon">Poketeam</h1>
                         <p className="py-6">
                             Catch 'em all, and build your team. Share your team with friends, and see how they stack up.
                         </p>

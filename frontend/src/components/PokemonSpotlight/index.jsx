@@ -15,6 +15,12 @@ const PokemonSpotlight = () => {
     const [pokemon, setPokemon] = useState(null);
 
     useEffect(() => {
+        return () => {
+            setPokemon(null);
+        };
+    }, []);
+
+    useEffect(() => {
         (async () => {
             teamsQuery.refetch();
             const teams = teamsQuery.data;

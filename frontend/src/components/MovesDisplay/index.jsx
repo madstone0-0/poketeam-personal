@@ -68,7 +68,7 @@ const MovesDiv = ({ moves, editMode, onClick }) => {
                 <div
                     key={move.mid}
                     onClick={(e) => onClick(move)}
-                    className={`m-4 w-96 shadow-xl card bg-base-100 ${editMode ? "moves-card" : ""}`}
+                    className={`m-4 w-52 md:w-96 shadow-xl card bg-base-100 ${editMode ? "moves-card" : ""}`}
                 >
                     <div className="card-body">
                         <h2 className="card-title">
