@@ -2,22 +2,28 @@
 
 require_once __DIR__.'/../db/db.php';
 require_once __DIR__.'/../utils.php';
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * Moves Service Class
+ * Handle all operations related to moves, including fetching, adding, deleting, and updating moves
+ */
 class MovesService
 {
-    private HttpClientInterface $client;
-
     private PokemonService $pokemonService;
 
     public function __construct()
     {
-        $this->client = HttpClient::create();
         $this->pokemonService = new PokemonService;
     }
 
-    public function getMoveCount($pid, $tid)
+    /**
+     * Get the number of moves assigned to a Pokemon in a team
+     *
+     * @param  $pid  Pokemon id
+     * @param  $tid  Team id
+     * @return int Number of moves assigned to the Pokemon in the team
+     */
+    public function getMoveCount(int $pid, int $tid): int
     {
         global $db;
         $query = <<<'SQL'
@@ -69,6 +75,10 @@ SQL;
         }
     }
 
+    /**
+     * @param  mixed  $pid
+     * @return array<string,mixed>
+     */
     public function FetchAllByPid($pid)
     {
         try {
@@ -102,6 +112,11 @@ SQL;
 
     }
 
+    /**
+     * @param  mixed  $pid
+     * @param  mixed  $tid
+     * @return array<string,mixed>
+     */
     public function GetById($pid, $tid)
     {
         global $db;
@@ -130,6 +145,10 @@ SQL;
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     * @return array<string,mixed>
+     */
     public function Add($data)
     {
         $tid = $data['tid'];
@@ -162,6 +181,10 @@ SQL;
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     * @return array<string,mixed>
+     */
     public function DeleteAllMovesByPid($data)
     {
         $pid = $data['pid'];
@@ -184,6 +207,10 @@ SQL;
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     * @return array<string,mixed>
+     */
     public function UpdateByPid($data)
     {
         $pid = $data['pid'];
@@ -234,6 +261,9 @@ SQL;
 
     }
 
+    /**
+     * @return []@param array<int,mixed> $moves
+     */
     private function selectUniqueRandomMoves(array $moves, int $count): array
     {
         // Shuffle the moves array to randomize selection
@@ -260,6 +290,9 @@ SQL;
         return $selectedMoves;
     }
 
+    /**
+     * @return array<string,mixed>* @param mixed $data
+     */
     public function AssignRandomMoves($data)
     {
         $tid = $data['tid'];

@@ -23,16 +23,24 @@ if (! isset($_SERVER['SERVER_NAME'])) {
 
 define('DB_FMT', 'utf8mb4');
 define('DB_ATTR', 'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset='.DB_FMT);
+// Database connection options
 define('DB_OPTS', [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES => false,
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, // Throw exceptions on errors
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, // Fetch associative arrays
+    PDO::ATTR_EMULATE_PREPARES => false, // Use real prepared statements
 ]);
 
+/**
+ * Database connection class
+ * Encapsulates a PDO connection
+ */
 class Database
 {
     private ?PDO $conn = null;
 
+    /**
+     * Constructor with optional seeding
+     */
     public function __construct(bool $seed = true)
     {
         try {
@@ -48,6 +56,9 @@ class Database
         }
     }
 
+    /**
+     * Get the connection
+     */
     public function Conn(): PDO
     {
         if ($this->conn == null) {
@@ -58,5 +69,6 @@ class Database
     }
 }
 
+// Establish a connection and export it as a global variable
 /** @var PDO $db */
 $db = (new Database(false))->Conn();

@@ -1,11 +1,20 @@
 <?php
 
+/*
+* User route
+* Handles all requests made to user/team
+*/
 session_start();
 
 require_once __DIR__.'/../utils.php';
 require_once __DIR__.'/user/team.php';
 require_once __DIR__.'/user/pokemon.php';
 
+/**
+ * Ping the server
+ *
+ * @return A pong message or an error message
+ */
 function pong()
 {
     if (! checkUserAuth()) {
@@ -14,6 +23,13 @@ function pong()
     sendData('pong', 200);
 }
 
+/**
+ * Handles all requests made to /user
+ *
+ * @param  $verb  The HTTP verb used
+ * @param  $subroute  The subroute of the request
+ * @return A success message or an error message
+ */
 function userHandler($verb, $subroute)
 {
     switch ($subroute[0]) {

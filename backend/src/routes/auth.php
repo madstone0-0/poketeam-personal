@@ -1,5 +1,10 @@
 <?php
 
+/*
+* Authentication route
+* Handles all requests made to /auth
+*/
+
 session_start();
 require_once __DIR__.'/../utils.php';
 require_once __DIR__.'/../services/UserService.php';
@@ -15,6 +20,9 @@ $authRoutes = [
     'DELETE' => ['delete' => deleteAccount(...)],
 ];
 
+/**
+ * Logs out the user
+ */
 function logout()
 {
     session_start();
@@ -24,6 +32,12 @@ function logout()
     sendData('Logged out', 200);
 }
 
+/**
+ * Update user account
+ *
+ * @param  $data  The data to update the account with
+ * @return A success message or an error message
+ */
 function updateAccount($data)
 {
     global $UserService;
@@ -36,6 +50,12 @@ function updateAccount($data)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Sign up a new user
+ *
+ * @param  $data  The data to sign up with
+ * @return A success message or an error message
+ */
 function signUp($data)
 {
     global $UserService;
@@ -48,6 +68,12 @@ function signUp($data)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Log in a user
+ *
+ * @param  $data  Login data
+ * @return A success message or an error message
+ */
 function login($data)
 {
     global $UserService;
@@ -62,6 +88,12 @@ function login($data)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Delete a user account
+ *
+ * @param  $id  The id of the account to delete
+ * @return A success message or an error message
+ */
 function deleteAccount($id)
 {
     if (! checkUserAuth()) {
@@ -78,6 +110,12 @@ function deleteAccount($id)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Handles all requests made to /auth
+ *
+ * @param  $verb  The HTTP verb used
+ * @param  $uri  The uri of the request
+ */
 function authHandler($verb, $uri)
 {
     global $authRoutes;

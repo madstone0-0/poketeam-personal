@@ -1,5 +1,9 @@
 <?php
 
+/*
+* Pokemon route
+* Handles all requests made to user/pokemon
+*/
 require_once __DIR__.'/../../services/MovesService.php';
 require_once __DIR__.'/../../services/StatsService.php';
 require_once __DIR__.'/../../services/PokemonService.php';
@@ -14,6 +18,12 @@ $pokemonRoutes = [
     'POST' => ['search' => pokemonSearch(...)],
 ];
 
+/**
+ * Get all moves for a pokemon
+ *
+ * @param  $id  The id of the pokemon
+ * @return A list of all moves for the pokemon or an error message
+ */
 function pokemonMoves($id)
 {
     global $MovesService;
@@ -25,6 +35,12 @@ function pokemonMoves($id)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Get all stats for a pokemon
+ *
+ * @param  $id  The id of the pokemon
+ * @return A list of all stats for the pokemon or an error message
+ */
 function pokemonStats($id)
 {
     global $StatsService;
@@ -37,11 +53,20 @@ function pokemonStats($id)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Information about the pokemon service
+ */
 function pokemonInfo()
 {
     sendData('Pokemon service', 200);
 }
 
+/**
+ * Get a pokemon by id
+ *
+ * @param  $id  The id of the pokemon
+ * @return The pokemon or an error message
+ */
 function pokemonGetById($id)
 {
     global $PokemonService;
@@ -54,6 +79,12 @@ function pokemonGetById($id)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Search for a pokemon by name
+ *
+ * @param  $data  Contains a substring of the pokemon name
+ * @return An array of pokemon matching the search or an error message
+ */
 function pokemonSearch($data)
 {
     global $PokemonService;
@@ -66,6 +97,12 @@ function pokemonSearch($data)
     sendData($res['data'], $res['status']);
 }
 
+/**
+ * Handles all requests made to user/pokemon
+ *
+ * @param  $verb  The HTTP verb used
+ * @param  $uri  The uri of the request
+ */
 function pokemonHandler($verb, $subroute)
 {
     global $pokemonRoutes;
