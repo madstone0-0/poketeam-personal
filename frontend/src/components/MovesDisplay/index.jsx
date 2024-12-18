@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import withLoading from "../WithLoading";
 import { getMoveInfo } from "../utils/api";
 import TypeBadge from "../TypeBadge";
@@ -8,29 +8,48 @@ const MovesDisplay = ({ moves, editMode = false, onClick = () => {} }) => {
     const [displayMoves, setDisplayMoves] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const memoizedMoves = useMemo(() => moves, [moves]);
+
     useEffect(() => {
-        (async () => {
-            const abortController = new AbortController();
-            let tempMoves = new Set();
-            for (const move of moves) {
-                try {
-                    const moveInfo = await getMoveInfo(move.mid);
-                    tempMoves.add({
-                        mid: move.mid,
-                        name: moveInfo.name,
-                        type: moveInfo.type.name,
-                        pp: moveInfo.pp,
-                    });
-                } catch (e) {
-                    loading && setLoading(false);
-                    console.error({ e });
-                }
+        const fetchMoves = async () => {
+            try {
+                const movePromises = memoizedMoves.map(async (move) => {
+                    try {
+                        const moveInfo = await getMoveInfo(move.mid);
+                        return {
+                            mid: move.mid,
+                            name: moveInfo.name,
+                            type: moveInfo.type.name,
+                            pp: moveInfo.pp,
+                        };
+                    } catch (e) {
+                        console.error(`Error fetching move ${move.mid}:`, e);
+                        return null;
+                    }
+                });
+
+                const fetchedMoves = await Promise.all(movePromises);
+
+                const uniqueMoves = Array.from(
+                    new Map(fetchedMoves.filter((move) => move !== null).map((move) => [move.mid, move])).values(),
+                );
+
+                const sortedMoves = uniqueMoves.sort((a, b) => parseInt(a.mid) - parseInt(b.mid));
+
+                setDisplayMoves(sortedMoves);
+            } catch (error) {
+                console.error("Error in move fetching:", error);
+            } finally {
+                setLoading(false);
             }
-            loading && setLoading(false);
-            tempMoves = [...tempMoves];
-            setDisplayMoves([...tempMoves.sort((a, b) => parseInt(a.mid) - parseInt(b.mid))]);
-        })();
-    }, []);
+        };
+
+        if (memoizedMoves.length > 0) {
+            fetchMoves();
+        } else {
+            setLoading(false);
+        }
+    }, [memoizedMoves]);
 
     return withLoading(MovesDiv)({ moves: displayMoves, loading, editMode, onClick });
 };
@@ -45,9 +64,9 @@ const MovesDiv = ({ moves, editMode, onClick }) => {
 
     return (
         <div className="flex flex-row flex-wrap justify-center self-center w-full h-fit">
-            {moves.map((move, key) => (
+            {moves.map((move) => (
                 <div
-                    key={key}
+                    key={move.mid}
                     onClick={(e) => onClick(move)}
                     className={`m-4 w-96 shadow-xl card bg-base-100 ${editMode ? "moves-card" : ""}`}
                 >

@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { getPokemonMovesById, searchPokemon } from "../utils/api";
+import { getPokemonMovesById } from "../utils/api";
 import Input from "../Input";
-import PokemonGrid from "../PokemonGrid";
 import { useSnackbar } from "notistack";
-import tempStore from "../stores/tempStore";
-import MovesDisplay from "../MovesDisplay";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import "../MovesDisplay/index.css";
 
@@ -40,19 +37,22 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
         );
     }, [searchTerm]);
 
-    const onMoveSelect = (move) => {
-        const found = moves.find((m) => m.mid === move.id);
+    const onMoveSelect = useCallback(
+        (move) => {
+            const found = moves.find((m) => m.mid === move.id);
 
-        if (found) {
-            pickMove(moves.filter((m) => m.mid !== move.id));
-        } else {
-            if (moves.length >= MAX_MOVES) {
-                enqueueSnackbar("Too many moves selected max number is 4", { variant: "error" });
-                return;
+            if (found) {
+                pickMove(moves.filter((m) => m.mid !== move.id));
+            } else {
+                if (moves.length >= MAX_MOVES) {
+                    enqueueSnackbar("Too many moves selected max number is 4", { variant: "error" });
+                    return;
+                }
+                pickMove([...moves, { mid: move.id }]);
             }
-            pickMove([...moves, { mid: move.id }]);
-        }
-    };
+        },
+        [moves, pickMove],
+    );
 
     const handleChange = useCallback(
         (e) => {
@@ -142,4 +142,4 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
     );
 };
 
-export default MovesPicker;
+export default React.memo(MovesPicker);

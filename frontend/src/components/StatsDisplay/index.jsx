@@ -5,10 +5,11 @@ const StatsDisplay = ({ stats, className = "bg-base-300" }) => {
     if (!stats) {
         return <></>;
     }
+
     return (
         <div className={`p-5 m-0 w-full h-full ${className}`}>
-            {stats.map(({ name, value }) => (
-                <div className="flex justify-between">
+            {stats.map(({ name, value }, key) => (
+                <div key={key} className="flex justify-between">
                     {mapStatToIcon(name)}
                     <div>{value}</div>
                 </div>
@@ -17,4 +18,4 @@ const StatsDisplay = ({ stats, className = "bg-base-300" }) => {
     );
 };
 
-export default StatsDisplay;
+export default React.memo(StatsDisplay);

@@ -8,7 +8,10 @@ require_once __DIR__.'/../services/MovesService.php';
 
 class TeamService
 {
-    private function doesTeamExist($id)
+    /**
+     * @param  mixed  $id
+     */
+    private function doesTeamExist($id): bool
     {
         global $db;
         $stmt = $db->prepare('select * from team where tid = ?');
@@ -19,7 +22,10 @@ class TeamService
         return count($result) > 0;
     }
 
-    private function updatedLastUpdated($tid)
+    /**
+     * @param  mixed  $tid
+     */
+    private function updatedLastUpdated($tid): void
     {
         global $db;
         $stmt = $db->prepare('update team set updated_at = now() where tid = ?');
@@ -27,7 +33,11 @@ class TeamService
         $stmt->execute();
     }
 
-    private function doesPokeomExistInTeam($tid, $pid)
+    /**
+     * @param  mixed  $tid
+     * @param  mixed  $pid
+     */
+    private function doesPokeomExistInTeam($tid, $pid): bool
     {
         global $db;
         $stmt = $db->prepare('select * from team_pokemon where tid = ? and pid = ?');
@@ -39,7 +49,11 @@ class TeamService
         return count($result) > 0;
     }
 
-    private function doesStatsExist($pid, $tid)
+    /**
+     * @param  mixed  $pid
+     * @param  mixed  $tid
+     */
+    private function doesStatsExist($pid, $tid): bool
     {
         global $db;
         $stmt = $db->prepare('select * from stats where tid = ? and pid = ?');
@@ -51,7 +65,11 @@ class TeamService
         return count($result) > 0;
     }
 
-    private function doesMovesExist($pid, $tid)
+    /**
+     * @param  mixed  $pid
+     * @param  mixed  $tid
+     */
+    private function doesMovesExist($pid, $tid): bool
     {
         global $db;
         $stmt = $db->prepare('select * from moves where tid = ? and pid = ?');
@@ -106,6 +124,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $id
+     */
     public function GetById($id)
     {
         if (! $this->doesTeamExist($id)) {
@@ -133,6 +154,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $uid
+     */
     public function GetByUID($uid)
     {
         $UserService = new UserService;
@@ -160,6 +184,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function Create($data)
     {
         $uid = $data['id'];
@@ -182,6 +209,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function Update($data)
     {
         $tid = $data['id'];
@@ -211,6 +241,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $id
+     */
     public function Delete($id)
     {
         if (! $this->doesTeamExist($id)) {
@@ -236,6 +269,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function DeleteManyTeamPokemon($data)
     {
         $tid = $data['tid'];
@@ -283,6 +319,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function DeleteTeamPokemon($data)
     {
         $tid = $data['tid'];
@@ -321,6 +360,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function DeleteAllTeamPokemon($data)
     {
         $tid = $data['tid'];
@@ -347,6 +389,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function UpdateTeamPokemon($data)
     {
         $tid = $data['tid'];
@@ -433,6 +478,9 @@ class TeamService
         }
     }
 
+    /**
+     * @param  mixed  $tid
+     */
     public function GetTeamPokemonCount($tid)
     {
         if (! $this->doesTeamExist($tid)) {
@@ -460,6 +508,9 @@ class TeamService
         ];
     }
 
+    /**
+     * @param  mixed  $data
+     */
     public function AddTeamPokemon($data)
     {
         $tid = $data['tid'];
@@ -525,14 +576,9 @@ class TeamService
                     $StatsService->Add($data);
                 }
 
-                if ($this->doesMovesExist($pid, $tid)) {
-                    error_log('Moves already exist');
-
+                if ($MovesService->getMoveCount($pid, $tid) != 0) {
                     continue;
                 } else {
-                    if ($MovesService->getMoveCount($pid, $tid) != 0) {
-                        continue;
-                    }
                     $movesRes = $MovesService->AssignRandomMoves(['tid' => $tid, 'pid' => $pid]);
                     if (! isOk($movesRes['status'])) {
                         error_log('Failed to assign moves');
@@ -561,6 +607,9 @@ class TeamService
         }
     }
 
+    /**
+     * @param  mixed  $tid
+     */
     public function GetTeamPokemon($tid)
     {
         if (! $this->doesTeamExist($tid)) {
@@ -596,7 +645,7 @@ inner join pokemon_cache pc on
 	pc.pid = tm.pid
 inner join stats s on
 	s.pid = tm.pid
-inner join moves m on
+left join moves m on
 	m.pid = tm.pid
 where
 	tm.tid = ?

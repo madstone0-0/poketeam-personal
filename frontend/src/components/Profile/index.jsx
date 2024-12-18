@@ -72,12 +72,12 @@ const Profile = ({ user }) => {
                         <span className="text-3xl">{username ? username[0].toUpperCase() : "U"}</span>
                     </div>
                 </div>
-                <h1 className="text-3xl font-bold">
+                <h1 className="text-xl font-bold md:text-3xl">
                     Welcome, {user.fname} {user.lname}
                 </h1>
                 <div className="m-5 w-full shadow-xl card bg-base-100">
                     <div className="card-body">
-                        <h1 className="text-3xl font-bold text-center card-title">Details</h1>
+                        <h1 className="text-xl font-bold text-center md:text-3xl card-title">Details</h1>
                         <form
                             className="flex flex-col items-center space-y-3 w-full h-full form-control"
                             onSubmit={(e) => {

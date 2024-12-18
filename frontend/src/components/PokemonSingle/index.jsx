@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, memo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useStore from "../stores";
 import { useForm } from "@tanstack/react-form";
@@ -28,7 +28,6 @@ const PokemonSingle = ({ selectedPokemon }) => {
     const { options } = useSettings();
     const [loading, setLoading] = useState(false);
 
-    // const [pokemon, setPokemon] = useState(null);
     const [editMode, setEditMode] = useReducer((editMode) => !editMode, false);
 
     const { queries, mutations } = useUserQueriesAndMutations({ uid, tid: selectedTeam });
@@ -44,14 +43,11 @@ const PokemonSingle = ({ selectedPokemon }) => {
             nav(-1);
         }
 
-        return () => {
-            // setPokemon(null);
-        };
+        return () => {};
     }, []);
 
     useEffect(() => {
         if (selectedPokemon) {
-            // setPokemon(selectedPokemon);
             setMoves(selectedPokemon.moves);
         }
 
@@ -68,7 +64,6 @@ const PokemonSingle = ({ selectedPokemon }) => {
             return;
         }
         nav(-1);
-        // setPokemon(null);
     };
 
     const toggleEditMode = () => {
@@ -172,7 +167,9 @@ const PokemonSingle = ({ selectedPokemon }) => {
                                     value={field.state.value}
                                     onChange={(e) => field.handleChange(e.target.value)}
                                 />
-                                <span className="text-sm text-gray-500">({selectedPokemon.name})</span>
+                                <span className="text-sm text-gray-500">
+                                    #{selectedPokemon.pid} ({selectedPokemon.name})
+                                </span>
                             </>
                         )}
                     />
@@ -186,6 +183,7 @@ const PokemonSingle = ({ selectedPokemon }) => {
                                     </>
                                 )}
                                 width="w-fit"
+                                inputExtra={{ min: 1, max: 100 }}
                                 type="number"
                                 name={field.name}
                                 value={field.state.value}
@@ -271,11 +269,11 @@ const PokemonSingle = ({ selectedPokemon }) => {
         setMoves(moves.filter((m) => m.mid !== move.mid));
     };
 
-    const RenderMain = ({ moves, editMode, selectedPokemon }) => {
+    const RenderMain = memo(({ moves, editMode, selectedPokemon }) => {
         if (editMode) {
             return (
                 <div className="flex flex-col">
-                    {EditForm()}
+                    <EditForm />
                     <MovesPicker pid={selectedPokemon.pid} moves={moves} pickMove={setMoves} />
                     <h1 className="m-4 text-xl font-bold text-center md:text-3xl">
                         Click a move to remove it from your pokemon
@@ -289,7 +287,10 @@ const PokemonSingle = ({ selectedPokemon }) => {
             <>
                 <PokemonSpriteDisplay pokemon={selectedPokemon} className="w-72" />
                 <h1 className="mt-2 text-2xl">
-                    {selectedPokemon.nickname} <span className="text-sm text-gray-500">({selectedPokemon.name})</span>
+                    {selectedPokemon.nickname}{" "}
+                    <span className="text-sm text-gray-500">
+                        #{selectedPokemon.pid} ({selectedPokemon.name})
+                    </span>
                 </h1>
                 <h1 className="text-2xl font-bold">Level: {selectedPokemon.level}</h1>
                 <div className="form-control">
@@ -311,10 +312,10 @@ const PokemonSingle = ({ selectedPokemon }) => {
                 <MovesDisplay editMode={editMode} moves={moves} />
             </>
         );
-    };
+    });
 
     return withLoading(() => (
-        <div className="flex flex-col justify-center mb-5">
+        <div className="flex flex-col justify-center mb-5 w-full">
             <div className="flex flex-row justify-between mb-4 w-full">
                 <button
                     className={`py-2 px-4 ${editMode ? "w-full" : "w-[48%]"} text-lg font-bold text-black rounded btn btn-accent`}

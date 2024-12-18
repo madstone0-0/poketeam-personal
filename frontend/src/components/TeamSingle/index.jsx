@@ -188,8 +188,6 @@ const TeamSingleView = ({
         toggleEditMode();
     };
 
-    useEffect(() => {}, [editMode]);
-
     useEffect(() => {
         setShownPokemon(pokemon.filter((poke) => !deletePokemon.has(poke.pid)));
     }, [deletePokemon, pokemon]);
@@ -214,32 +212,53 @@ const TeamSingleView = ({
         nav(`pokemon/${poke.pid}`);
     };
 
-    const RenderMain = () => {
+    const RenderMain = useMemo(() => {
         const loading = teamAddPokemonMutation.isLoading || teamDeleteManyPokemonMutation.isLoading;
+
+        // Edit mode rendering
         if (editMode) {
-            return withLoading(({ shownMemo, pickedMemo, pickPokemon }) => (
+            return (
                 <div className="flex flex-col">
-                    <PokemonPicker
-                        teamPokemonNum={shownPokemon.length}
-                        pickedPokemon={pickedMemo}
-                        pickPokemon={pickPokemon}
-                    />
-                    <h1 className="m-4 text-xl font-bold text-center md:text-3xl">
-                        Click a Pokemon to remove it from your team
-                    </h1>
-                    <TeamPokemonGrid clickableCard={true} onPokeClick={deleteOnPokeClick} pokemon={shownMemo} />
+                    {loading ? (
+                        <div className="flex justify-center items-center w-full h-screen">
+                            <span className="loading loading-dots loading-lg"></span>
+                        </div>
+                    ) : (
+                        <>
+                            <PokemonPicker
+                                teamPokemon={shownPokemon}
+                                pickedPokemon={pickedMemo}
+                                pickPokemon={pickPokemon}
+                            />
+                            <h1 className="m-4 text-xl font-bold text-center md:text-3xl">
+                                Click a Pokemon to remove it from your team
+                            </h1>
+                            <TeamPokemonGrid clickableCard={true} onPokeClick={deleteOnPokeClick} pokemon={shownMemo} />
+                        </>
+                    )}
                 </div>
-            ))({ shownMemo, pickedMemo, loading, pickPokemon });
-        } else if (pokemon.length > 0) {
-            return <TeamPokemonGrid onPokeClick={onTeamPokemonClick} clickableCard={true} pokemon={pokemon} />;
-        } else {
+            );
+        }
+
+        // Non-edit mode rendering
+        if (pokemon.length === 0) {
             return (
                 <div className="p-5 font-bold text-center align-middle h-[100vh]">
                     <span>No Pokemon in this team</span>
                 </div>
             );
         }
-    };
+
+        // Default case: show team pokemon grid
+        return <TeamPokemonGrid onPokeClick={onTeamPokemonClick} clickableCard={true} pokemon={pokemon} />;
+    }, [
+        editMode,
+        shownMemo,
+        pickedMemo,
+        pokemon,
+        teamAddPokemonMutation.isLoading,
+        teamDeleteManyPokemonMutation.isLoading,
+    ]);
 
     return (
         <div className="flex flex-col self-center">
@@ -256,6 +275,11 @@ const TeamSingleView = ({
             )}
             <div className="flex flex-col justify-center items-center self-center w-1/2 md:flex-row">
                 <button
+                    disabled={
+                        teamPokemonQuery.isLoading ||
+                        teamAddPokemonMutation.isLoading ||
+                        teamDeleteManyPokemonMutation.isLoading
+                    }
                     onClick={handleButtonClick}
                     className={`m-2 w-full ${!editMode ? "self-center" : ""} text-sm md:m-5 md:w-1/2 md:text-lg btn btn-primary`}
                 >
@@ -263,6 +287,11 @@ const TeamSingleView = ({
                 </button>
                 {editMode ? (
                     <button
+                        disabled={
+                            teamPokemonQuery.isLoading ||
+                            teamAddPokemonMutation.isLoading ||
+                            teamDeleteManyPokemonMutation.isLoading
+                        }
                         onClick={handleDiscard}
                         className="m-2 w-full text-sm md:m-5 md:w-1/2 md:text-lg btn btn-accent"
                     >
@@ -272,7 +301,7 @@ const TeamSingleView = ({
                     <></>
                 )}
             </div>
-            <RenderMain />
+            {RenderMain}
         </div>
     );
 };

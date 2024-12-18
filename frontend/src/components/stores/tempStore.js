@@ -9,7 +9,6 @@ const tempStore = create(
                 pickerOpen: false,
                 searchTerm: "",
 
-
                 setPickerOpen: (val) =>
                     set((state) => {
                         state.pickerOpen = val;
@@ -28,8 +27,8 @@ const tempStore = create(
             {
                 name: "temp-store",
                 storage: createJSONStorage(() => sessionStorage),
-                onRehydrateStorage: (state) => {
-                    state.reset();
+                onRehydrateStorage: () => {
+                    tempStore.getState().reset();
                     console.log("Rehydrated temp store");
                 },
             },

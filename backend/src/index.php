@@ -84,5 +84,6 @@ try {
             break;
     }
 } catch (Exception $e) {
+    error_log($e->getTraceAsString());
     sendError($e->getMessage(), 500);
 }

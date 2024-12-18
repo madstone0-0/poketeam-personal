@@ -234,6 +234,32 @@ SQL;
 
     }
 
+    private function selectUniqueRandomMoves(array $moves, int $count): array
+    {
+        // Shuffle the moves array to randomize selection
+        shuffle($moves);
+
+        // Use a set to track unique move IDs
+        $uniqueMoveIds = [];
+        $selectedMoves = [];
+
+        foreach ($moves as $move) {
+            // If this move's ID hasn't been seen before
+            if (! in_array($move['id'], $uniqueMoveIds)) {
+                $uniqueMoveIds[] = $move['id'];
+                $selectedMoves[] = $move;
+
+                // Stop when we've found the desired number of unique moves
+                if (count($selectedMoves) >= $count) {
+                    break;
+                }
+            }
+        }
+
+        // If not enough unique moves, return all available moves
+        return $selectedMoves;
+    }
+
     public function AssignRandomMoves($data)
     {
         $tid = $data['tid'];
@@ -245,19 +271,30 @@ SQL;
         }
         $moves = $movesRes['data'];
 
-        global $db;
+        $selectedMoves = $this->selectUniqueRandomMoves($moves, 4);
         try {
-            for ($i = 0; $i < 4; $i++) {
-                $move = $moves[array_rand($moves)];
-                $addRes = $this->Add(['tid' => $tid, 'pid' => $pid, 'mid' => $move['id']]);
+            $assignedMoves = [];
+
+            foreach ($selectedMoves as $move) {
+                $addRes = $this->Add([
+                    'tid' => $tid,
+                    'pid' => $pid,
+                    'mid' => $move['id'],
+                ]);
+
                 if (! isOk($addRes['status'])) {
-                    throw new Exception('Failed to assign moves');
+                    throw new Exception("Failed to assign move: {$move['id']}");
                 }
+
+                $assignedMoves[] = $move['id'];
             }
 
             return [
                 'status' => 200,
-                'data' => ['msg' => 'Starter moves assigned successfully'],
+                'data' => [
+                    'msg' => 'Starter moves assigned successfully',
+                    'moves' => $assignedMoves,
+                ],
             ];
         } catch (Exception $e) {
 

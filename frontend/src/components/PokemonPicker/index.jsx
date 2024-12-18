@@ -1,52 +1,70 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { searchPokemon } from "../utils/api";
 import Input from "../Input";
 import PokemonGrid from "../PokemonGrid";
 import { useSnackbar } from "notistack";
 import tempStore from "../stores/tempStore";
+import { shallow } from "zustand/shallow";
 
-const PokemonPicker = ({ teamPokemonNum, pickedPokemon, pickPokemon }) => {
-    const pickerOpen = tempStore((state) => state.pickerOpen);
-    const searchTerm = tempStore((state) => state.searchTerm);
-    const setPickerOpen = tempStore((state) => state.setPickerOpen);
-    const setSearchTerm = tempStore((state) => state.setSearchTerm);
+const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
+    const pickerOpen = tempStore((state) => state.pickerOpen, shallow);
+    const searchTerm = tempStore((state) => state.searchTerm, shallow);
+    const setPickerOpen = tempStore((state) => state.setPickerOpen, shallow);
+    const setSearchTerm = tempStore((state) => state.setSearchTerm, shallow);
     const [pokemon, setPokemon] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
-        if (searchTerm.length < 2) {
+        if (searchTerm.length === 0) {
             setPokemon([]);
             return;
         }
 
         searchPokemon(searchTerm)
             .then((res) => {
-                setPokemon(res);
+                const sortedPokemon = res.toSorted((a, b) => a.name.localeCompare(b.name));
+                const pids = teamPokemon.map((poke) => poke.pid);
+                const notAlreadyInTeamPokemon = sortedPokemon.filter((poke) => !pids.includes(poke.pid));
+                setPokemon(notAlreadyInTeamPokemon);
             })
             .catch((error) => {
                 console.error({ error });
             });
     }, [searchTerm]);
 
-    const onPokemonSelect = (poke) => {
-        if (pickedPokemon.length >= 6 || teamPokemonNum >= 6) {
-            enqueueSnackbar("Team is full", { variant: "error" });
-            return;
-        }
+    const onPokemonSelect = useCallback(
+        (poke) => {
+            if (pickedPokemon.size >= 6 || teamPokemon.length >= 6) {
+                enqueueSnackbar("Team is full", { variant: "error" });
+                return;
+            }
 
-        const found = pickedPokemon.has(poke.pid);
-        if (found) {
-            pickedPokemon.delete(poke.pid);
-        } else {
-            pickPokemon(pickedPokemon.add(poke.pid));
-        }
-    };
+            const newPickedPokemon = new Set(pickedPokemon);
+            if (newPickedPokemon.has(poke.pid)) {
+                newPickedPokemon.delete(poke.pid);
+            } else {
+                newPickedPokemon.add(poke.pid);
+            }
+
+            pickPokemon(newPickedPokemon);
+        },
+        [pickedPokemon, teamPokemon, enqueueSnackbar, pickPokemon],
+    );
 
     const handleChange = useCallback(
         (e) => {
             setSearchTerm(e.target.value);
         },
         [setSearchTerm],
+    );
+
+    const GridProps = useMemo(
+        () => ({
+            onPokeClick: onPokemonSelect,
+            pickedPokemon,
+            pokemon,
+        }),
+        [onPokemonSelect, pickedPokemon, pokemon],
     );
 
     return (
@@ -70,11 +88,7 @@ const PokemonPicker = ({ teamPokemonNum, pickedPokemon, pickPokemon }) => {
                     </div>
                     <div>
                         {pokemon.length > 0 ? (
-                            <PokemonGrid
-                                onPokeClick={onPokemonSelect}
-                                pickedPokemon={pickedPokemon}
-                                pokemon={pokemon}
-                            />
+                            <PokemonGrid {...GridProps} />
                         ) : (
                             <h2 className="text-xl text-center">No Pokemon Found</h2>
                         )}
@@ -85,4 +99,4 @@ const PokemonPicker = ({ teamPokemonNum, pickedPokemon, pickPokemon }) => {
     );
 };
 
-export default PokemonPicker;
+export default React.memo(PokemonPicker);

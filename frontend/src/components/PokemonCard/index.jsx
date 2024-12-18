@@ -60,7 +60,7 @@ const PokemonCard = ({
 
     const renderMain = () => {
         const common = () => (
-            <div className="justify-end card-actions">
+            <div className="justify-center card-actions">
                 <TypeBadge type={type1} />
                 {type2 && <TypeBadge type={type2} />}
             </div>
@@ -73,7 +73,9 @@ const PokemonCard = ({
                 <>
                     {common()}
                     <div className="mt-3 mb-3">
-                        <h1 className="text-center">Level: {pokemon.level}</h1>
+                        <h1 className="text-lg text-center">
+                            <span className="font-bold">Level: </span> {pokemon.level}
+                        </h1>
                     </div>
                 </>
             );
@@ -101,7 +103,9 @@ const PokemonCard = ({
                 <PokemonSpriteDisplay className="w-1/2" pokemon={pokemon} />
             </figure>
             <div className="pb-0 mb-0 card-body">
-                <h2 className="self-center text-center card-title">{name}</h2>
+                <h2 className="self-center text-center card-title">
+                    {name} <span className="text-sm text-gray-500">#{pid}</span>
+                </h2>
                 {renderMain()}
             </div>
             {renderBottom()}

@@ -37,8 +37,8 @@ create table team (
 );
 
 create table team_pokemon (
-  pid int not null,
-  tid int not null,
+  pid int unique not null,
+  tid int unique not null,
   is_shiny boolean not null default false,
   level int not null,
   nickname varchar(100),
