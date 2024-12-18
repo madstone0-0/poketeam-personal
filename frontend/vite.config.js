@@ -14,7 +14,10 @@ export default defineConfig({
     plugins: [
         react(),
         viteStaticCopy({
-            targets: [{ src: path.resolve(__dirname, "./.htaccess"), dest: path.resolve(__dirname, "./dist") }],
+            targets: [
+                { src: path.resolve(__dirname, "./.htaccess"), dest: path.resolve(__dirname, "./dist") },
+                { src: path.resolve(__dirname, "./favicon.ico"), dest: path.resolve(__dirname, "./dist") },
+            ],
         }),
     ],
 });

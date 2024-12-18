@@ -586,7 +586,7 @@ const UsersDisplay = () => {
                                     <td>{user.username}</td>
                                     <td>{user.email}</td>
                                     <td>
-                                        <div className="flex flex-col space-y-2 w-full md:flex-row md:space-x-2">
+                                        <div className="flex flex-col space-y-2 w-full align-middle md:flex-row md:space-y-0 md:space-x-2 md:w-1/2">
                                             <button
                                                 onClick={(e) => {
                                                     handleEdit(e, user);
