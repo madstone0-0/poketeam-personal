@@ -9,7 +9,7 @@ drop table if exists team;
 
 drop table if exists user;
 
-drop table if exists pokemon_cache;
+-- drop table if exists pokemon_cache;
 
 -- create database if not exists webtech_fall2024_madiba_quansah;
 use webtech_fall2024_madiba_quansah;
@@ -18,6 +18,7 @@ create table if not exists user (
   uid int auto_increment primary key,
   fname varchar(100) not null,
   lname varchar(100) not null,
+  dob datetime NOT NULL default current_timestamp(),
   username varchar(50) unique not null,
   email varchar(100) unique not null,
   passhash varchar(255) not null,
@@ -38,7 +39,7 @@ create table team (
 
 create table team_pokemon (
   pid int unique not null,
-  tid int unique not null,
+  tid int not null,
   is_shiny boolean not null default false,
   level int not null,
   nickname varchar(100),
