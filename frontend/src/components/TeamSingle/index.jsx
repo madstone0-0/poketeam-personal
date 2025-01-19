@@ -21,7 +21,7 @@ const TeamSingle = () => {
     const { uid } = user;
     const { queries } = useUserQueriesAndMutations({ tid, uid });
     const { teamPokemonQuery } = queries;
-    const [editTeamName, setTeamName] = useState(team.team_name);
+    const [editTeamName, setTeamName] = useState(team.teamName);
     const [teamName, setMainTeamName] = useState("");
     const teamNameState = { editTeamName, setTeamName };
     const queryClient = useQueryClient();
@@ -30,8 +30,8 @@ const TeamSingle = () => {
         teamPokemonQuery.refetch();
         if (teamPokemonQuery.isSuccess) {
             setTeam(teamPokemonQuery.data.team);
-            setMainTeamName(teamPokemonQuery.data.team.team_name);
-            setTeamName(teamPokemonQuery.data.team.team_name);
+            setMainTeamName(teamPokemonQuery.data.team.teamName);
+            setTeamName(teamPokemonQuery.data.team.teamName);
             setPokemon(teamPokemonQuery.data.pokemon);
             setLoading(false);
         }
@@ -48,8 +48,8 @@ const TeamSingle = () => {
         // teamPokemonQuery.refetch();
         if (teamPokemonQuery.isSuccess) {
             setTeam(teamPokemonQuery.data.team);
-            setMainTeamName(teamPokemonQuery.data.team.team_name);
-            setTeamName(teamPokemonQuery.data.team.team_name);
+            setMainTeamName(teamPokemonQuery.data.team.teamName);
+            setTeamName(teamPokemonQuery.data.team.teamName);
             setPokemon(teamPokemonQuery.data.pokemon);
             if (selectedPokemon != null) {
                 setSelectedPokemon(teamPokemonQuery.data.pokemon.find((poke) => poke.pid === selectedPokemon.pid));
@@ -265,8 +265,8 @@ const TeamSingleView = ({
             {editMode ? (
                 <Input
                     type="text"
-                    id="team_name"
-                    name="team_name"
+                    id="teamName"
+                    name="teamName"
                     onChange={(e) => setTeamName(e.target.value)}
                     value={editTeamName}
                 />

@@ -17,7 +17,7 @@ const TeamCard = ({ team, showControls = { view: true, del: true }, handleDelete
     return (
         <div className="m-5 w-96 shadow-xl min-h-fit team-card card bg-base-100">
             <div className="card-body">
-                <h2 className="card-title">{team.team_name}</h2>
+                <h2 className="card-title">{team.teamName}</h2>
                 {showControls.view || showControls.del ? (
                     <div className="justify-end card-actions">
                         {showControls.view ? (

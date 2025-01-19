@@ -39,16 +39,16 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
 
     const onMoveSelect = useCallback(
         (move) => {
-            const found = moves.find((m) => m.mid === move.id);
+            const found = moves.find((m) => m.mid === move.mid);
 
             if (found) {
-                pickMove(moves.filter((m) => m.mid !== move.id));
+                pickMove(moves.filter((m) => m.mid !== move.mid));
             } else {
                 if (moves.length >= MAX_MOVES) {
                     enqueueSnackbar("Too many moves selected max number is 4", { variant: "error" });
                     return;
                 }
-                pickMove([...moves, { mid: move.id }]);
+                pickMove([...moves, { mid: move.mid }]);
             }
         },
         [moves, pickMove],
@@ -82,7 +82,7 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
             return <></>;
         }
         return shownMoves.map((move) => {
-            const foundInMoves = moves.find((m) => m.mid === move.id);
+            const foundInMoves = moves.find((m) => m.mid === move.mid);
             const border = foundInMoves ? "border-4 border-primary" : "border-4 border-transparent";
             return (
                 <div
@@ -91,7 +91,7 @@ const MovesPicker = ({ pid, moves, pickMove }) => {
                 >
                     <div className="card-body">
                         <h2 className="card-title">
-                            {formatMoveName(move.name)} <span className="text-sm text-gray500">#({move.id})</span>
+                            {formatMoveName(move.name)} <span className="text-sm text-gray500">#({move.mid})</span>
                         </h2>
                     </div>
                 </div>

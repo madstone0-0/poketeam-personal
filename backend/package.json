@@ -1,0 +1,23 @@
+{
+  "name": "poketeam-backend",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc "
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@hono/zod-validator": "^0.4.2",
+    "@types/bcrypt": "^5.0.2",
+    "async-sema": "^3.1.1",
+    "bcrypt": "^5.1.1",
+    "hono": "^4.6.15",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "lodash": "^4.17.21",
+    "tsx": "^4.7.1"
+  }
+}
