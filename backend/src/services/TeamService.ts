@@ -355,7 +355,7 @@ inner join "user" u on
 
     async TeamPokemon(
         tid: number,
-    ): PromiseReturn<{ team: { team_id: number; team_name: string }; pokemon: TeamPokemon[] }> {
+    ): PromiseReturn<{ team: { teamId: number; teamName: string }; pokemon: TeamPokemon[] }> {
         try {
             if (!(await this.doesTeamExist(tid))) throw new ServiceError("Team not found", 404);
 
@@ -444,8 +444,8 @@ where
                 status: 200,
                 data: {
                     team: {
-                        team_id: tid,
-                        team_name: (await this.ById(tid)).data!.teamName,
+                        teamId: tid,
+                        teamName: (await this.ById(tid)).data!.teamName,
                     },
                     pokemon,
                 },
