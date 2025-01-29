@@ -3,14 +3,21 @@ import { searchPokemon } from "../utils/api";
 import Input from "../Input";
 import PokemonGrid from "../PokemonGrid";
 import { useSnackbar } from "notistack";
-import tempStore from "../stores/tempStore";
-import { shallow } from "zustand/shallow";
+import { Pokemon } from "../../types";
 
-const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }) => {
-    const pickerOpen = tempStore((state) => state.pickerOpen, shallow);
-    const searchTerm = tempStore((state) => state.searchTerm, shallow);
-    const setPickerOpen = tempStore((state) => state.setPickerOpen, shallow);
-    const setSearchTerm = tempStore((state) => state.setSearchTerm, shallow);
+interface PokemonPickerProps {
+    teamPokemon: Pokemon[];
+    pickedPokemon: Set<number>;
+    pickPokemon: (arg0: Set<number>) => void;
+}
+
+const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }: PokemonPickerProps) => {
+    // const pickerOpen = tempStore((state) => state.pickerOpen, shallow);
+    // const searchTerm = tempStore((state) => state.searchTerm, shallow);
+    // const setPickerOpen = tempStore((state) => state.setPickerOpen, shallow);
+    // const setSearchTerm = tempStore((state) => state.setSearchTerm, shallow);
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
     const [pokemon, setPokemon] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
