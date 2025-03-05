@@ -3,10 +3,10 @@ import { searchPokemon } from "../utils/api";
 import Input from "../Input";
 import PokemonGrid from "../PokemonGrid";
 import { useSnackbar } from "notistack";
-import { Pokemon } from "../../types";
+import { Callback, ChangeHandler, Pokemon, PokemonInfo, TeamPokemon } from "../../types";
 
 interface PokemonPickerProps {
-    teamPokemon: Pokemon[];
+    teamPokemon: TeamPokemon[];
     pickedPokemon: Set<number>;
     pickPokemon: (arg0: Set<number>) => void;
 }
@@ -18,7 +18,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }: PokemonPicke
     // const setSearchTerm = tempStore((state) => state.setSearchTerm, shallow);
     const [pickerOpen, setPickerOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [pokemon, setPokemon] = useState([]);
+    const [pokemon, setPokemon] = useState<PokemonInfo[]>([]);
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }: PokemonPicke
 
         searchPokemon(searchTerm)
             .then((res) => {
-                const sortedPokemon = res.toSorted((a, b) => a.name.localeCompare(b.name));
+                const sortedPokemon = res.sort((a, b) => a.name.localeCompare(b.name));
                 const pids = teamPokemon.map((poke) => poke.pid);
                 const notAlreadyInTeamPokemon = sortedPokemon.filter((poke) => !pids.includes(poke.pid));
                 setPokemon(notAlreadyInTeamPokemon);
@@ -39,7 +39,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }: PokemonPicke
             });
     }, [searchTerm]);
 
-    const onPokemonSelect = useCallback(
+    const onPokemonSelect = useCallback<Callback<[TeamPokemon | PokemonInfo]>>(
         (poke) => {
             if (pickedPokemon.size >= 6 || teamPokemon.length >= 6) {
                 enqueueSnackbar("Team is full", { variant: "error" });
@@ -58,7 +58,7 @@ const PokemonPicker = ({ teamPokemon, pickedPokemon, pickPokemon }: PokemonPicke
         [pickedPokemon, teamPokemon, enqueueSnackbar, pickPokemon],
     );
 
-    const handleChange = useCallback(
+    const handleChange = useCallback<ChangeHandler>(
         (e) => {
             setSearchTerm(e.target.value);
         },

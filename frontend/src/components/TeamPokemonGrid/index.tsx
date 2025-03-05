@@ -1,20 +1,20 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import PokemonCard from "../PokemonCard";
-import type { Pokemon } from "../../types.ts";
+import type { Callback, Pokemon, PokemonInfo, TeamPokemon } from "../../types.ts";
 
 interface TeamPokemonGridProps {
-    pokemon: Pokemon[];
-    limit: number | null;
-    onPokeClick: () => void;
-    clickableCard: boolean;
-    searchCard: boolean;
-    sortKey: keyof Pokemon;
-    isAscending: boolean;
+    pokemon: TeamPokemon[];
+    limit?: number;
+    onPokeClick: Callback<[TeamPokemon]>;
+    clickableCard?: boolean;
+    searchCard?: boolean;
+    sortKey?: keyof Pokemon;
+    isAscending?: boolean;
 }
 
 const TeamPokemonGrid = ({
     pokemon,
-    limit = null,
+    limit = undefined,
     onPokeClick,
     clickableCard = false,
     searchCard = false,
@@ -35,7 +35,7 @@ const TeamPokemonGrid = ({
             })
             .map((poke) => (
                 <PokemonCard
-                    onClick={onPokeClick}
+                    onClick={onPokeClick as Callback<[TeamPokemon | PokemonInfo]>}
                     key={poke.pid}
                     searchCard={searchCard}
                     pokemon={poke}
