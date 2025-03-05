@@ -1,10 +1,10 @@
 import postgres from "postgres";
 
 const db = postgres({
-    db: "poketeam",
-    host: "localhost",
-    pass: "pass",
-    user: "postgres",
+    db: process.env.DB || "poketeam_dev",
+    host: process.env.HOST || "localhost",
+    pass: process.env.PASS || "password",
+    user: process.env.USER || "user",
     prepare: true,
     transform: {
         undefined: null,

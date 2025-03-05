@@ -7,9 +7,15 @@ import { HEALTH_TEXT } from "./constants.js";
 import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
 import user from "./routes/user.js";
+import { prometheus } from "@hono/prometheus";
+const { printMetrics, registerMetrics } = prometheus();
+import { opentelemetryMiddleware } from "./tel.js";
+
 
 const app = new Hono();
+app.use("*", registerMetrics);
 app.use(logger(customLogger));
+app.use("*", opentelemetryMiddleware(console));
 app.use(
     cors({
         origin: ["http://localhost:5173"],
@@ -25,6 +31,8 @@ app.onError((e, c) => {
     customLogger(`Error -> ${err.stack}`);
     return c.json(sendError("Something went wrong"), 500);
 });
+
+app.get("/metrics", printMetrics);
 
 app.get("/health", (c) => {
     return sendSR(c, {

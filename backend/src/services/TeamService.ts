@@ -273,7 +273,7 @@ inner join "user" u on
                 throw new ServiceError("Team not found", 404);
             }
 
-            const res = await db`select count(*) as count from team pokemon where tid = ${tid}`;
+            const res = await db`select count(*) as count from team_pokemon where tid = ${tid}`;
             return {
                 status: 200,
                 data: parseInt(res[0].count),
@@ -295,6 +295,7 @@ inner join "user" u on
                 throw new ServiceError("Failed to fetch team pokemon count", 500);
             }
             const count = countRes.data!;
+            customLogger(`Count: ${count}`);
             if (count + pokemon.length > 6) {
                 throw new ServiceError("Each team can have a maximum of 6 pokemon", 400);
             }
