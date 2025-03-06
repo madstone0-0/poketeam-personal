@@ -16,7 +16,7 @@ import Modal from "../Modal";
 import TeamGrid from "../TeamGrid";
 import Input from "../Input";
 import NotFound from "../NotFound";
-import { ClickHandler, HeaderIitem, MsgResponse, NewUser, Team, UID, User } from "../../types";
+import { ClickHandler, HeaderIitem, MsgResponse, NewUser, ResponseMaybeProblems, Team, UID, User } from "../../types";
 
 const AdminDash = () => {
     const user = useStore((state) => state.user);
@@ -137,7 +137,7 @@ const AdminCreate = () => {
             enqueueSnackbar("Admin Creation successful", { variant: "success" });
             form.reset();
         } else {
-            const msg = getErrMsgIfExists(error) || error.message;
+            const msg = getErrMsgIfExists<ResponseMaybeProblems>(error) || error.message;
             if (msg instanceof Object) {
                 enqueueSnackbar(`Signup error: ${msg.err}`, { variant: "error" });
                 msg.problems.forEach((p: string) => enqueueSnackbar(`${p}`, { variant: "error" }));
@@ -378,7 +378,6 @@ const TeamsDisplay = () => {
 };
 
 const UsersDisplay = () => {
-    const user = useStore((state) => state.user);
     const { queries, mutations } = useAdminQueriesAndMutations();
     const { usersQuery } = queries;
     const { userDeleteMutation, userEditMutation } = mutations;

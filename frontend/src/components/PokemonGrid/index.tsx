@@ -14,11 +14,10 @@ const PokemonGrid = ({ pokemon, limit = undefined, pickedPokemon, onPokeClick }:
     if (limit) {
         pokemon = pokemon.slice(0, limit);
     }
-    const parentRef = React.useRef(null);
+    const parentRef = React.useRef<HTMLDivElement>(null);
 
     const rowVirtualizer = useVirtualizer({
         count: 20,
-        parentRef,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 35,
     });

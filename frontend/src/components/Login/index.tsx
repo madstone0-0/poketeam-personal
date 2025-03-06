@@ -9,7 +9,7 @@ import { validate, noneEmpty, getErrMsgIfExists } from "../utils";
 import "./index.css";
 import Input from "../Input";
 import Header from "../Header";
-import { ChangeHandler, ClickHandler, HeaderIitem, User } from "../../types";
+import { ChangeHandler, ClickHandler, HeaderIitem, ResponseMaybeProblems, User } from "../../types";
 
 export type LoginProps = {
     headerItems: HeaderIitem[];
@@ -89,7 +89,7 @@ const Login = ({ headerItems }: LoginProps) => {
             navigate(`/home/`);
         } catch (e) {
             setLoading(false);
-            const msg = getErrMsgIfExists(e) || (e as Error).message;
+            const msg = getErrMsgIfExists<ResponseMaybeProblems>(e) || (e as Error).message;
             if (msg instanceof Object) {
                 enqueueSnackbar(`Login error: ${msg.err}`, { variant: "error" });
             } else {

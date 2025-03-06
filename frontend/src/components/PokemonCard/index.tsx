@@ -16,33 +16,30 @@ type PokemonCardProps = {
 
 const PokemonCard = ({
     pokemon,
-    onClick = (pokemon) => {},
+    onClick = () => {},
     pickedPokemon = new Set(),
     searchCard = true,
     clickableCard = true,
 }: PokemonCardProps) => {
     const [clicked, setClicked] = useState(false);
-    const [showStats, setShowStats] = useState(false);
+    // const [showStats, setShowStats] = useState(false);
 
-    let name;
-    let pid;
-    let type1;
-    let type2;
-    let sprite_url;
+    let name: string;
+    let pid: number;
+    let type1: string;
+    let type2: string | undefined;
 
     if (searchCard) {
         name = pokemon.name;
         pid = pokemon.pid;
         type1 = pokemon.type1;
         type2 = pokemon.type2;
-        sprite_url = pokemon.sprite_url;
     } else {
         const poke = pokemon as TeamPokemon;
         name = poke.nickname;
         pid = poke.pid;
         type1 = poke.type1;
         type2 = poke.type2;
-        sprite_url = poke.sprite_url;
     }
 
     const baseClassName =

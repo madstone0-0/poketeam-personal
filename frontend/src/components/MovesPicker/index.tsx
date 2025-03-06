@@ -79,7 +79,6 @@ const MovesPicker = ({ pid, moves, pickMove }: MovesPickerProps) => {
 
     const rowVirtualizer = useVirtualizer({
         count: 4,
-        parentRef,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 35,
     });

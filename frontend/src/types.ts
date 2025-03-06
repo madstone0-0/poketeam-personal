@@ -134,6 +134,8 @@ export type ServiceResponseError = {
     };
 };
 
+export type ResponseMaybeProblems = string | { err: string; problems: string[] };
+
 export type Controls = {
     create?: boolean;
     view?: boolean;

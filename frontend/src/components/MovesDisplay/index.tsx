@@ -38,7 +38,11 @@ const MovesDisplay = ({ moves, editMode = false, onClick = () => {} }: MovesDisp
                 const fetchedMoves = await Promise.all(movePromises);
 
                 const uniqueMoves = Array.from(
-                    new Map(fetchedMoves.filter((move) => move !== null).map((move) => [move.mid, move])).values(),
+                    new Map(
+                        fetchedMoves
+                            .filter((move): move is DisplayMove => move !== null)
+                            .map((move) => [move.mid, move]),
+                    ).values(),
                 );
 
                 const sortedMoves = uniqueMoves.sort((a, b) => a.mid - b.mid);

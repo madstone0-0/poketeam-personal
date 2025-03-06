@@ -8,7 +8,7 @@ interface TeamPokemonGridProps {
     onPokeClick: Callback<[TeamPokemon]>;
     clickableCard?: boolean;
     searchCard?: boolean;
-    sortKey?: keyof Pokemon;
+    sortKey?: Exclude<keyof Pokemon, "is_shiny" | "sprite_url" | "shiny_sprite_url" | "tid">;
     isAscending?: boolean;
 }
 
@@ -26,22 +26,25 @@ const TeamPokemonGrid = ({
     }
 
     const elements = useMemo(() => {
-        return pokemon
-            .sort((a, b) => {
-                if (typeof a[sortKey] !== "number" || typeof b[sortKey] !== "number") {
-                    return isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
-                }
-                return isAscending ? a[sortKey] - b[sortKey] : b[sortKey] - a[sortKey];
-            })
-            .map((poke) => (
-                <PokemonCard
-                    onClick={onPokeClick as Callback<[TeamPokemon | PokemonInfo]>}
-                    key={poke.pid}
-                    searchCard={searchCard}
-                    pokemon={poke}
-                    clickableCard={clickableCard}
-                />
-            ));
+        const shownPokemon = sortKey
+            ? pokemon.sort((a, b) => {
+                  if (typeof a[sortKey] === "string" || typeof b[sortKey] === "string") {
+                      return isAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+                  }
+                  const aVal = a[sortKey] as number;
+                  const bVal = b[sortKey] as number;
+                  return isAscending ? aVal - bVal : bVal - aVal;
+              })
+            : pokemon;
+        return shownPokemon.map((poke) => (
+            <PokemonCard
+                onClick={onPokeClick as Callback<[TeamPokemon | PokemonInfo]>}
+                key={poke.pid}
+                searchCard={searchCard}
+                pokemon={poke}
+                clickableCard={clickableCard}
+            />
+        ));
     }, [pokemon]);
 
     return <div className="flex flex-row flex-wrap justify-center items-center">{elements}</div>;

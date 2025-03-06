@@ -27,11 +27,11 @@ const Main = () => {
             <QueryClientProvider client={queryClient}>
                 <SnackbarProvider maxSnack={4}>
                     <Routes>
-                        <Route exact path="/" element={<Hero headerItems={headerItems} />} />
+                        <Route path="/" element={<Hero headerItems={headerItems} />} />
                         <Route path="/login" element={<Login headerItems={headerItems} />} />
                         <Route path="/signup" element={<Signup headerItems={headerItems} />} />
                         <Route path="/home/*" element={<Home />} />
-                        <Route exact path="/admin/*" element={<AdminDash />} />
+                        <Route path="/admin/*" element={<AdminDash />} />
                     </Routes>
                 </SnackbarProvider>
                 <ReactQueryDevtools initialIsOpen={false} />

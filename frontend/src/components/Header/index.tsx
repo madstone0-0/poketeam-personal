@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { HeaderIitem } from "../../types";
 
 interface HeaderProps {
@@ -28,9 +28,9 @@ const Header = ({ headerItems = [], miscItems = [], homeLinkActive = true, homeL
         }
         const first = headerItems.map(({ label, href }, key) => (
             <li key={key}>
-                <Link to={href} onClick={() => setIsMenuOpen(false)}>
+                <NavLink to={href} onClick={() => setIsMenuOpen(false)}>
                     {label}
-                </Link>
+                </NavLink>
             </li>
         ));
         const res = [...first, ...miscItems];

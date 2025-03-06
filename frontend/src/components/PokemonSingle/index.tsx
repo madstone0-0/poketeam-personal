@@ -165,7 +165,6 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
 
                     <form.Field
                         name="nickname"
-                        className="flex flex-row items-center mt-2 space-x-2 text-2xl align-middle"
                         children={(field) => (
                             <>
                                 <Input
@@ -189,8 +188,8 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
                                         <span className="font-bold">Level</span>
                                     </>
                                 )}
-                                width="w-fit"
-                                inputExtra={{ min: 1, max: 100 }}
+                                className="w-fit"
+                                inputExtra={[{ min: 1, max: 100 }]}
                                 type="number"
                                 name={field.name}
                                 value={field.state.value}
@@ -216,7 +215,7 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
 
                     <div className="flex flex-row m-3 space-x-2">
                         <TypeBadge type={selectedPokemon.type1} />
-                        {selectedPokemon.type2 !== null && <TypeBadge type={selectedPokemon.type2} />}
+                        {selectedPokemon.type2 && <TypeBadge type={selectedPokemon.type2} />}
                     </div>
                     <form.Field
                         mode="array"
@@ -234,6 +233,7 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
                                                 },
                                             }}
                                             key={key}
+                                            // @ts-expect-error tanstack hack to work with whole objects instead of fields
                                             name={`stats[${key}]`}
                                         >
                                             {(subField) => {
@@ -243,12 +243,13 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
                                                         {mapStatToIcon(val.name)}
                                                         <div className="flex flex-col">
                                                             <Input
-                                                                inputExtra={{ min: 0, max: 999999 }}
+                                                                inputExtra={[{ min: 0, max: 999999 }]}
                                                                 type="number"
                                                                 name={val.name}
                                                                 value={val.value}
                                                                 onChange={(e) =>
                                                                     subField.handleChange({
+                                                                        // @ts-expect-error tanstack hack to work with whole objects instead of fields
                                                                         name: val.name,
                                                                         value: e.target.valueAsNumber,
                                                                     })
