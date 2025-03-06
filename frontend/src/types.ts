@@ -12,6 +12,8 @@ export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export type MsgResponse = { msg: string };
 export type StatusResponse = { status: string };
+export type ErrorResponse<T = string> = { err: T };
+export type ResponseWithError<T = string> = { response?: { data?: { data?: ErrorResponse<T> } } };
 
 export type UID = number;
 export type TID = number;
@@ -107,6 +109,7 @@ export type DisplayMove = {
 };
 
 export type Callback<Args extends unknown[] = []> = (...arg: Args) => void;
+export type AsyncCallback<Args extends unknown[] = []> = (...arg: Args) => Promise<void>;
 
 export type HeaderIitem = {
     label: string;
@@ -134,7 +137,7 @@ export type ServiceResponseError = {
     };
 };
 
-export type ResponseMaybeProblems = string | { err: string; problems: string[] };
+export type ResponseMaybeProblems = string | { err: ErrorResponse; problems: string[] };
 
 export type Controls = {
     create?: boolean;

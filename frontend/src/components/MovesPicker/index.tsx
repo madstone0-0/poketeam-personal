@@ -87,11 +87,12 @@ const MovesPicker = ({ pid, moves, pickMove }: MovesPickerProps) => {
         if (searchMoves.length == 0) {
             return <></>;
         }
-        return shownMoves.map((move) => {
+        return shownMoves.map((move, key) => {
             const foundInMoves = moves.find((m) => m.mid === move.mid);
             const border = foundInMoves ? "border-4 border-primary" : "border-4 border-transparent";
             return (
                 <div
+                    key={key}
                     onClick={(e) => onMoveSelect(move)}
                     className={`m-4 shadow-xl h-fit moves-card w-50 card bg-base-100 ${border}`}
                 >

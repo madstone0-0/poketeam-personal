@@ -21,7 +21,7 @@ export const mapStatName = (name: string) => {
 
 export const mapStatToIcon = (name: string) => {
     const resDiv = (Icon: typeof Heart, name: string, colorClass = "text-red-500", size = 20) => (
-        <div className={`flex w-1/2 flex-row align-middle items-center`}>
+        <div className={`flex w-1/2 flex-row align-middle text-sm md:text-lg mr-2 items-center`}>
             <Icon className={`${colorClass} mr-2`} size={size} /> {mapStatName(name)}
         </div>
     );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useReducer, memo } from "react";
+import React, { useState, useEffect, useReducer, memo, useMemo, useCallback, useRef, useLayoutEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import useStore from "../stores";
+import useStore, { UserState } from "../stores";
 import { useForm } from "@tanstack/react-form";
 import StatsDisplay from "../StatsDisplay";
 import { Save } from "lucide-react";
@@ -14,7 +14,21 @@ import { useUserQueriesAndMutations } from "../utils/queries";
 import PokemonSpriteDisplay from "../PokemonSpriteDisplay";
 import withLoading from "../WithLoading";
 import MovesPicker from "../MovesPicker";
-import { ClickHandler, Move, TeamPokemon, TeamPokemonMove, TeamPokemonStat, UpdatePokemon } from "../../types";
+import {
+    AsyncCallback,
+    Callback,
+    ClickHandler,
+    Move,
+    TeamPokemon,
+    TeamPokemonMove,
+    TeamPokemonStat,
+    TID,
+    UID,
+    UpdatePokemon,
+} from "../../types";
+import { Options } from "../stores/persistentStore";
+
+type EditablePokemon = Pick<TeamPokemon, "nickname" | "level" | "stats" | "is_shiny">;
 
 type PokemonSingleProps = {
     selectedPokemon?: TeamPokemon;
@@ -28,15 +42,16 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
     const uid = user.uid;
     const tid = useParams().tid;
     const [moves, setMoves] = useState<TeamPokemonMove[]>([]);
-    const { enqueueSnackbar } = useSnackbar();
     const { options } = useSettings();
     const [loading, setLoading] = useState(false);
-
-    const [editMode, setEditMode] = useReducer((editMode) => !editMode, false);
-
+    const { enqueueSnackbar } = useSnackbar();
     const { queries, mutations } = useUserQueriesAndMutations({ uid: uid!, tid: selectedTeam });
     const { teamPokemonQuery } = queries;
     const { teamUpdatePokemonMutation } = mutations;
+
+    const [editMode, setEditMode] = useReducer((editMode) => !editMode, false);
+
+    const memoOptions = useMemo(() => options, [options]);
 
     useEffect(() => {
         if (selectedPokemon) {
@@ -49,6 +64,12 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
 
         return () => {};
     }, []);
+
+    // useLayoutEffect(() => {
+    //     window.scrollTo({
+    //         top: 0,
+    //     });
+    // });
 
     useEffect(() => {
         if (selectedPokemon) {
@@ -78,68 +99,180 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
         toggleEditMode();
     };
 
-    const form = useForm<EditablePokemon>({
-        defaultValues: {
-            nickname: selectedPokemon ? selectedPokemon.nickname : "",
-            level: selectedPokemon ? selectedPokemon.level : options.defaultLevel,
-            stats: selectedPokemon ? selectedPokemon.stats : [],
-            is_shiny: selectedPokemon ? selectedPokemon.is_shiny : false,
+    const onMoveClick = (move: Move) => {
+        setMoves(moves.filter((m) => m.mid !== move.mid));
+    };
+
+    const onSaveChanges = useCallback<AsyncCallback<[EditablePokemon]>>(
+        async (value: EditablePokemon) => {
+            setLoading(true);
+            if (value.nickname === "") {
+                enqueueSnackbar("Nickname cannot be empty", { variant: "error" });
+                setLoading(false);
+                return;
+            }
+
+            if (value.stats.some((stat) => stat.value < 0)) {
+                enqueueSnackbar("Stats cannot be less than 0", { variant: "error" });
+                setLoading(false);
+                return;
+            }
+
+            if (value.level > 100 || value.level < 1) {
+                enqueueSnackbar("Level must be between 1 and 100", { variant: "error" });
+                setLoading(false);
+                return;
+            }
+
+            const data: UpdatePokemon = {
+                tid: parseInt(tid!),
+                pokemon: {
+                    pid: selectedPokemon!.pid,
+                    is_shiny: value.is_shiny,
+                    nickname: value.nickname,
+                    level: value.level,
+                    stats: value.stats,
+                    moves: moves,
+                },
+            };
+
+            try {
+                await teamUpdatePokemonMutation.mutateAsync(data);
+                teamPokemonQuery.refetch();
+                setSelectedPokemon({ ...selectedPokemon!, ...data.pokemon });
+                toggleEditMode();
+                setLoading(false);
+            } catch (e) {
+                console.error({ e });
+                setLoading(false);
+            }
         },
-        onSubmit: async ({ value }) => {
-            await onSaveChanges(value);
-        },
-    });
+        [enqueueSnackbar, moves, selectedPokemon, setSelectedPokemon, teamPokemonQuery, teamUpdatePokemonMutation, tid],
+    );
 
     if (!selectedPokemon) return <></>;
 
-    type EditablePokemon = Pick<TeamPokemon, "nickname" | "level" | "stats" | "is_shiny">;
+    return withLoading(() => (
+        <div className="flex flex-col justify-center mb-5 w-full">
+            <div className="flex flex-row justify-between mb-4 w-full">
+                <button
+                    className={`py-2 px-4 ${editMode ? "w-full" : "w-[48%]"} text-lg font-bold text-black rounded btn btn-accent`}
+                    onClick={onBack}
+                >
+                    {editMode ? "Cancel" : "Back"}
+                </button>
+                {!editMode && (
+                    <button
+                        form="editForm"
+                        onClick={handleButtonClick}
+                        className={`py-2 px-4  w-[48%] text-lg font-bold text-black rounded btn btn-primary`}
+                    >
+                        Edit
+                    </button>
+                )}
+            </div>
 
-    const onSaveChanges = async (value: EditablePokemon) => {
-        setLoading(true);
-        if (value.nickname === "") {
-            enqueueSnackbar("Nickname cannot be empty", { variant: "error" });
-            setLoading(false);
-            return;
-        }
+            {selectedPokemon != null && (
+                <div className="flex flex-col items-center">
+                    <RenderMain
+                        onSaveChanges={onSaveChanges}
+                        moves={moves}
+                        setMoves={setMoves}
+                        editMode={editMode}
+                        selectedPokemon={selectedPokemon}
+                        onMoveClick={onMoveClick}
+                        options={memoOptions}
+                    />
+                </div>
+            )}
+        </div>
+    ))({ loading });
+};
 
-        if (value.stats.some((stat) => stat.value < 0)) {
-            enqueueSnackbar("Stats cannot be less than 0", { variant: "error" });
-            setLoading(false);
-            return;
-        }
+type EditFormProps = {
+    selectedPokemon?: TeamPokemon;
+    options: Options;
+    onSaveChanges: AsyncCallback<[EditablePokemon]>;
+};
 
-        if (value.level > 100 || value.level < 1) {
-            enqueueSnackbar("Level must be between 1 and 100", { variant: "error" });
-            setLoading(false);
-            return;
-        }
-
-        const data: UpdatePokemon = {
-            tid: parseInt(tid!),
-            pokemon: {
-                pid: selectedPokemon.pid,
-                is_shiny: value.is_shiny,
-                nickname: value.nickname,
-                level: value.level,
-                stats: value.stats,
-                moves: moves,
+const EditForm = memo(
+    ({ selectedPokemon, options, onSaveChanges }: EditFormProps) => {
+        const form = useForm<EditablePokemon>({
+            defaultValues: {
+                nickname: selectedPokemon ? selectedPokemon.nickname : "",
+                level: selectedPokemon ? selectedPokemon.level : options.defaultLevel,
+                stats: selectedPokemon ? selectedPokemon.stats : [],
+                is_shiny: selectedPokemon ? selectedPokemon.is_shiny : false,
             },
+            onSubmit: async ({ value }) => {
+                await onSaveChanges(value);
+            },
+        });
+
+        if (!selectedPokemon) return <></>;
+
+        type PokeStatsProps = {
+            form: typeof form;
         };
 
-        try {
-            await teamUpdatePokemonMutation.mutateAsync(data);
-            teamPokemonQuery.refetch();
-            setSelectedPokemon({ ...selectedPokemon, ...data.pokemon });
-            toggleEditMode();
-            setLoading(false);
-        } catch (e) {
-            console.error({ e });
-            setLoading(false);
-        }
-    };
-
-    const EditForm = () => {
-        if (!selectedPokemon) return <></>;
+        const PokeStats = memo(({ form }: PokeStatsProps) => {
+            return (
+                <form.Field
+                    mode="array"
+                    name="stats"
+                    children={(field) => (
+                        <div className="p-2 m-0 mb-2 w-full h-full md:p-5">
+                            {field.state.value.map((_, key) => {
+                                return (
+                                    <form.Field
+                                        validators={{
+                                            onChange: ({ value }) => {
+                                                const val = value as unknown as TeamPokemonStat;
+                                                return val.value < 0 ? "Stat cannot be less than 0" : undefined;
+                                            },
+                                        }}
+                                        key={key}
+                                        // @ts-expect-error tanstack hack to work with whole objects instead of fields
+                                        name={`stats[${key}]`}
+                                    >
+                                        {(subField) => {
+                                            const val = subField.state.value as unknown as TeamPokemonStat;
+                                            return (
+                                                <div key={key} className="flex justify-between space-y-2">
+                                                    {mapStatToIcon(val.name)}
+                                                    <div className="flex flex-col w-1/2 md:w-full">
+                                                        <Input
+                                                            inputExtra={[{ min: 0, max: 1428 }]} // Max stat achievable in game not 100% right now
+                                                            type="number"
+                                                            name={val.name}
+                                                            className="text-sm md:text-lg text-right max-w-[50%]"
+                                                            labelClassname="w-[50%]"
+                                                            value={val.value}
+                                                            onChange={(e) =>
+                                                                subField.handleChange({
+                                                                    // @ts-expect-error tanstack hack to work with whole objects instead of fields
+                                                                    name: val.name,
+                                                                    value: e.target.valueAsNumber,
+                                                                })
+                                                            }
+                                                        />
+                                                        {field.state.meta.errors ? (
+                                                            <em role="alert">{field.state.meta.errors.join(", ")}</em>
+                                                        ) : (
+                                                            <></>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }}
+                                    </form.Field>
+                                );
+                            })}
+                        </div>
+                    )}
+                />
+            );
+        });
 
         return (
             <form
@@ -217,82 +350,38 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
                         <TypeBadge type={selectedPokemon.type1} />
                         {selectedPokemon.type2 && <TypeBadge type={selectedPokemon.type2} />}
                     </div>
-                    <form.Field
-                        mode="array"
-                        name="stats"
-                        children={(field) => (
-                            <div className="p-5 m-0 mb-2 w-full h-full">
-                                {field.state.value.map((_, key) => {
-                                    return (
-                                        <form.Field
-                                            validators={{
-                                                onChange: ({ value }) => {
-                                                    const val = value as unknown as TeamPokemonStat;
-                                                    console.log({ val });
-                                                    return val.value < 0 ? "Stat cannot be less than 0" : undefined;
-                                                },
-                                            }}
-                                            key={key}
-                                            // @ts-expect-error tanstack hack to work with whole objects instead of fields
-                                            name={`stats[${key}]`}
-                                        >
-                                            {(subField) => {
-                                                const val = subField.state.value as unknown as TeamPokemonStat;
-                                                return (
-                                                    <div key={key} className="flex justify-between">
-                                                        {mapStatToIcon(val.name)}
-                                                        <div className="flex flex-col">
-                                                            <Input
-                                                                inputExtra={[{ min: 0, max: 999999 }]}
-                                                                type="number"
-                                                                name={val.name}
-                                                                value={val.value}
-                                                                onChange={(e) =>
-                                                                    subField.handleChange({
-                                                                        // @ts-expect-error tanstack hack to work with whole objects instead of fields
-                                                                        name: val.name,
-                                                                        value: e.target.valueAsNumber,
-                                                                    })
-                                                                }
-                                                            />
-                                                            {field.state.meta.errors ? (
-                                                                <em role="alert">
-                                                                    {field.state.meta.errors.join(", ")}
-                                                                </em>
-                                                            ) : (
-                                                                <></>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }}
-                                        </form.Field>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    />
+                    <PokeStats form={form} />
                 </>
             </form>
         );
-    };
+    },
+    (prev, next) => {
+        return (
+            prev.selectedPokemon?.pid == next.selectedPokemon?.pid &&
+            prev.options == next.options &&
+            prev.onSaveChanges == next.onSaveChanges
+        );
+    },
+);
 
-    const onMoveClick = (move: Move) => {
-        setMoves(moves.filter((m) => m.mid !== move.mid));
-    };
+type RenderMainProps = {
+    moves: TeamPokemonMove[];
+    editMode: boolean;
+    selectedPokemon?: TeamPokemon;
+    onMoveClick: Callback<[Move]>;
+    setMoves: React.Dispatch<React.SetStateAction<TeamPokemonMove[]>>;
+    options: Options;
+    onSaveChanges: AsyncCallback<[EditablePokemon]>;
+};
 
-    type RenderMainProps = {
-        moves: TeamPokemonMove[];
-        editMode: boolean;
-        selectedPokemon?: TeamPokemon;
-    };
-    const RenderMain = memo(({ moves, editMode, selectedPokemon }: RenderMainProps) => {
+const RenderMain = memo(
+    ({ moves, editMode, selectedPokemon, onMoveClick, setMoves, options, onSaveChanges }: RenderMainProps) => {
         if (!selectedPokemon) return;
 
         if (editMode) {
             return (
                 <div className="flex flex-col">
-                    <EditForm />
+                    <EditForm selectedPokemon={selectedPokemon} options={options} onSaveChanges={onSaveChanges} />
                     <MovesPicker pid={selectedPokemon.pid} moves={moves} pickMove={setMoves} />
                     <h1 className="m-4 text-xl font-bold text-center md:text-3xl">
                         Click a move to remove it from your pokemon
@@ -331,34 +420,7 @@ const PokemonSingle = ({ selectedPokemon }: PokemonSingleProps) => {
                 <MovesDisplay editMode={editMode} moves={moves} />
             </>
         );
-    });
-
-    return withLoading(() => (
-        <div className="flex flex-col justify-center mb-5 w-full">
-            <div className="flex flex-row justify-between mb-4 w-full">
-                <button
-                    className={`py-2 px-4 ${editMode ? "w-full" : "w-[48%]"} text-lg font-bold text-black rounded btn btn-accent`}
-                    onClick={onBack}
-                >
-                    {editMode ? "Cancel" : "Back"}
-                </button>
-                {!editMode && (
-                    <button
-                        form="editForm"
-                        onClick={handleButtonClick}
-                        className={`py-2 px-4  w-[48%] text-lg font-bold text-black rounded btn btn-primary`}
-                    >
-                        Edit
-                    </button>
-                )}
-            </div>
-            {selectedPokemon != null && (
-                <div className="flex flex-col items-center">
-                    <RenderMain moves={moves} editMode={editMode} selectedPokemon={selectedPokemon} />
-                </div>
-            )}
-        </div>
-    ))({ loading });
-};
+    },
+);
 
 export default PokemonSingle;

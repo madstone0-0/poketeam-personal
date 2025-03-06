@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_ENV='development'; vite",
-    "build": "tsc -b && vite build",
+    "build": "NODE_ENV='production'; tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
+
   "dependencies": {
     "@tanstack/react-form": "^0.39.2",
     "@tanstack/react-virtual": "^3.11.2",

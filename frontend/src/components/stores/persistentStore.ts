@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
-type Options = {
+export type Options = {
     defaultLevel: number;
 };
 
@@ -29,6 +29,7 @@ const usePersistantStore = create<PersistentState>()(
                 }),
                 {
                     name: "persistent-store",
+                    storage: createJSONStorage(() => localStorage),
                 },
             ),
         ),

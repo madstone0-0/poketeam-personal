@@ -1,3 +1,4 @@
+import { ResponseWithError } from "../../types";
 import { API_BASE } from "../constants";
 import { fetch } from "./Fetch";
 
@@ -84,11 +85,19 @@ export const handlePing = async (callback: () => void) => {
 
 export const getErrMsgIfExists = <T = string>(e: unknown): T | undefined => {
     try {
-        const errorWithResponse = e as { response?: { data?: { err?: T } } };
-        return errorWithResponse.response?.data?.err ?? undefined;
+        const errorWithResponse = e as ResponseWithError<T>;
+        console.log({ res: errorWithResponse.response?.data?.data });
+        return errorWithResponse.response?.data?.data?.err ?? undefined;
     } catch (error) {
         console.log({ error });
         return undefined;
+    }
+};
+
+export const scrollToTop = <T extends HTMLElement>(ref: React.MutableRefObject<T | null>) => {
+    if (ref.current) {
+        console.log("Scrolling");
+        ref.current.scrollTop = 0;
     }
 };
 

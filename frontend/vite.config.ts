@@ -16,7 +16,7 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 { src: path.resolve(__dirname, "./.htaccess"), dest: path.resolve(__dirname, "./dist") },
-                { src: path.resolve(__dirname, "./favicon.ico"), dest: path.resolve(__dirname, "./dist") },
+                { src: path.resolve(__dirname, "./src/favicon.ico"), dest: path.resolve(__dirname, "./dist") },
             ],
         }),
     ],

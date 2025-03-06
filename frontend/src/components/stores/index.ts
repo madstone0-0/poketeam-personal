@@ -35,7 +35,7 @@ type ResetOps = {
     admin?: boolean;
 };
 
-type UserState = {
+export type UserState = {
     user: User;
     selectedPokemon?: TeamPokemon;
     selectedTeam?: number;
