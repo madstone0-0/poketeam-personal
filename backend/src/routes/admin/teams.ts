@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sendMsg, sendSR } from "../../utils.js";
+import { sendMsg, sendSR } from "../../utils/utils.js";
 import TeamService from "../../services/TeamService.js";
 import { checkAdminAuth } from "../../middleware/auth.js";
 import PokemonService from "../../services/PokemonService.js";

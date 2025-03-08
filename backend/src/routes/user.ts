@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sendData } from "../utils.js";
+import { sendData } from "../utils/utils.js";
 import { checkAuth } from "../middleware/auth.js";
 import { customLogger } from "../logging.js";
 import team from "./user/team.js";

@@ -1,8 +1,8 @@
 import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
-import { prettyPrint, sendError } from "../utils.js";
+import { prettyPrint, sendError } from "../utils/utils.js";
 import { customLogger } from "../logging.js";
-import type { UserData, UserDB } from "../types.js";
+import type { UserData, UserDB } from "../types/index.js";
 
 export const checkAuth: MiddlewareHandler = async (c, next) => {
     const userCookie = getCookie(c, "user");

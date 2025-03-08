@@ -1,4 +1,5 @@
 import type { ContentfulStatusCode } from "hono/utils/http-status";
+import type { MoveFetchRes, StatFetchRes } from "./API.js";
 
 export interface ServiceReturn<Data = any> {
     status: ContentfulStatusCode;
@@ -6,6 +7,9 @@ export interface ServiceReturn<Data = any> {
     data?: Data;
     extra?: any;
 }
+
+// From https://stackoverflow.com/a/52702528
+export type Rename<T, K extends keyof T, N extends string> = Pick<T, Exclude<keyof T, K>> & { [P in N]: T[K] };
 
 export type PromiseReturn<Data = any> = Promise<ServiceReturn<Data>>;
 
@@ -19,20 +23,9 @@ export type UserDB = {
     is_admin: boolean;
 };
 
-export type UserData = {
-    uid: number;
-    fname: string;
-    lname: string;
-    email: string;
-    uname: string;
-    passhash: string;
-    isAdmin: boolean;
-};
+export type UserData = Omit<Rename<Rename<UserDB, "is_admin", "isAdmin">, "username", "uname">, "passhash">;
 
-// From https://stackoverflow.com/a/52702528
-export type Rename<T, K extends keyof T, N extends string> = Pick<T, Exclude<keyof T, K>> & { [P in N]: T[K] };
-
-export type NewUser = Omit<UserData, "uid">;
+export type NewUser = Omit<UserData, "uid"> & { passhash: UserDB["passhash"] };
 
 export type User = {
     email: string;
@@ -76,22 +69,6 @@ export interface PokemonCacheDB {
     shiny_sprite_url?: string;
     last_updated?: number;
 }
-
-export type MoveFetchRes = {
-    move: {
-        name: string;
-        url: string;
-    };
-};
-
-export type StatFetchRes = {
-    base_stat: number;
-    effort: number;
-    stat: {
-        name: string;
-        url: string;
-    };
-};
 
 export type PokemonFetchRes = PokemonCacheDB & {
     stats: StatFetchRes[];
@@ -164,3 +141,12 @@ export type UpdatePokemon = Omit<NewTeamPokemon, "pid"> & {
 };
 
 export type MessageReturn = { msg: string };
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface IFetch {
+    get: (url: string) => Promise<any>;
+    post: <D>(url: string, data: D) => Promise<any>;
+    put: <D>(url: string, data: D) => Promise<any>;
+    delete: (url: string) => Promise<any>;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
-import { sendData, sendMsg, sendSR } from "../utils.js";
+import { sendData, sendMsg, sendSR } from "../utils/utils.js";
 import UserService from "../services/UserService.js";
-import type { NewUser, UserDB } from "../types.js";
+import type { NewUser, UserDB } from "../types/index.js";
 import { loginValidator, signUpValidator, userUpdateValidator } from "../validation.js";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { customLogger } from "../logging.js";
@@ -47,12 +47,13 @@ auth.post("/login", loginValidator, async (c) => {
     return sendSR(c, sr, async () => {
         if (sr.data) {
             customLogger("Set Login Coookie");
-            const { ["passhash"]: nope, ...rest } = sr.data;
+            // const { ["passhash"]: nope, ...rest } = sr.data;
             setCookie(
                 c,
                 "user",
                 JSON.stringify({
-                    ...rest,
+                    // ...rest,
+                    ...sr.data,
                 }),
                 {
                     maxAge: 10 * 60 * 60, // 10 mins

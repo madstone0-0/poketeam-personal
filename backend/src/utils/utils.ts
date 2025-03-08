@@ -1,9 +1,9 @@
 import type { ContentfulStatusCode, StatusCode } from "hono/utils/http-status";
-import type { PromiseReturn, ServiceReturn, StatFetch, TeamPokemonStat } from "./types.js";
+import type { PromiseReturn, ServiceReturn, StatFetch, TeamPokemonStat } from "../types/index.js";
 import type { Context } from "hono";
-import { customLogger } from "./logging.js";
+import { customLogger } from "../logging.js";
 
-export const isOk = (status: ContentfulStatusCode) => status <= 399 && status >= 100;
+export const isOk = (status: ContentfulStatusCode | number) => status <= 399 && status >= 100;
 
 export const sendData = <T>(data: T) => ({ data: data });
 
@@ -40,8 +40,7 @@ export const serviceWrapper = async <T>(fn: () => PromiseReturn<T>, message: str
     try {
         const res = await fn();
         return res;
-    } catch (e) {
-    }
+    } catch (e) {}
 };
 
 export class ServiceError extends Error {
@@ -110,4 +109,28 @@ export function debounce<T extends (...args: any[]) => any>(func: T, waitFor: nu
             }
             timeout = setTimeout(() => resolve(func(...args)), waitFor);
         });
+}
+
+/* Taken from https://gist.github.com/t3dotgg/a486c4ae66d32bf17c09c73609dacc5b */
+// Types for the result object with discriminated union
+type Success<T> = {
+    data: T;
+    error: undefined;
+};
+
+type Failure<E> = {
+    data: undefined;
+    error: E;
+};
+
+type Result<T, E = Error> = Success<T> | Failure<E>;
+
+// Main wrapper function
+export async function tryCatch<T, E = Error>(promise: Promise<T>): Promise<Result<T, E>> {
+    try {
+        const data = await promise;
+        return { data, error: undefined };
+    } catch (error) {
+        return { data: undefined, error: error as E };
+    }
 }

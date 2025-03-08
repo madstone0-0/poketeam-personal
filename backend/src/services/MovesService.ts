@@ -1,10 +1,12 @@
-import { custom } from "zod";
 import db from "../db/db.js";
-import type { MessageReturn, MoveFetch, MoveFetchRes, PokemonMove, PromiseReturn, TeamPokemonMove } from "../types.js";
-import { handleServerError, isOk, prettyPrint, ServiceError, shuffle } from "../utils.js";
+import type { MessageReturn, MoveFetch, PokemonMove, PromiseReturn, TeamPokemonMove } from "../types/index.js";
+import { handleServerError, isOk, prettyPrint, ServiceError, shuffle } from "../utils/utils.js";
 import PokemonService from "./PokemonService.js";
 import { customLogger } from "../logging.js";
 import type { TransactionSql } from "postgres";
+import type { MoveInfo } from "../types/API.js";
+import { fetch } from "../utils/Fetch.js";
+import { POKE_API } from "../constants.js";
 
 class MovesService {
     private async doesMovesExist(pid: number, tid: number) {
@@ -18,24 +20,44 @@ class MovesService {
         return count;
     }
 
-    async FetchByPid(pid: number): PromiseReturn<MoveFetch[]> {
-        const res = await PokemonService.FromAPIById(pid);
-        if (!isOk(res.status)) {
-            throw new ServiceError("Failed to fetch pokemon data", 500);
-        }
+    async FetchByMid(mid: number): PromiseReturn<MoveInfo> {
+        try {
+            const res = await fetch.get<MoveInfo>(`${POKE_API}/move/${mid}`);
+            if (!isOk(res.status)) throw new ServiceError("Failed to fetch move info", 500);
 
-        const moves = res.data!.moves;
-        const pokeMoves = moves.map((move) => {
-            const mid = move.move.url.split("/")[6];
+            const data = res.data;
+
             return {
-                mid: parseInt(mid),
-                name: move.move.name,
+                status: 200,
+                data,
             };
-        });
-        return {
-            status: 200,
-            data: pokeMoves,
-        };
+        } catch (e) {
+            return handleServerError(e, "MoveFetchMid");
+        }
+    }
+
+    async FetchByPid(pid: number): PromiseReturn<MoveFetch[]> {
+        try {
+            const res = await PokemonService.FromAPIById(pid);
+            if (!isOk(res.status)) {
+                throw new ServiceError("Failed to fetch pokemon data", 500);
+            }
+
+            const moves = res.data!.moves;
+            const pokeMoves = moves.map((move) => {
+                const mid = move.move.url.split("/")[6];
+                return {
+                    mid: parseInt(mid),
+                    name: move.move.name,
+                };
+            });
+            return {
+                status: 200,
+                data: pokeMoves,
+            };
+        } catch (e) {
+            return handleServerError(e, "MoveFetchPid");
+        }
     }
 
     async Add(move: PokemonMove, transaction?: TransactionSql): PromiseReturn<{ msg: string }> {
@@ -49,10 +71,9 @@ class MovesService {
             }
 
             if (transaction) {
-                const res =
-                    await transaction`insert into moves (pid, tid, mid) values ${transaction(move, "pid", "tid", "mid")}`;
+                await transaction`insert into moves (pid, tid, mid) values ${transaction(move, "pid", "tid", "mid")}`;
             } else {
-                const res = await db`insert into moves (pid, tid, mid) values ${db(move, "pid", "tid", "mid")}`;
+                await db`insert into moves (pid, tid, mid) values ${db(move, "pid", "tid", "mid")}`;
             }
 
             return {
@@ -130,7 +151,7 @@ class MovesService {
 
     async DeleteAllMovesByPokemon(tid: number, pid: number): PromiseReturn<MessageReturn> {
         try {
-            const res = await db`delete from moves where pid = ${pid} and tid = ${tid}`;
+            await db`delete from moves where pid = ${pid} and tid = ${tid}`;
 
             return {
                 status: 200,
@@ -157,10 +178,9 @@ class MovesService {
 
             for (const move of moves) {
                 if (transaction) {
-                    const res =
-                        await transaction`insert into moves (pid, tid, mid) values (${pid}, ${tid}, ${move.mid})`;
+                    await transaction`insert into moves (pid, tid, mid) values (${pid}, ${tid}, ${move.mid})`;
                 } else {
-                    const res = await db`insert into moves (pid, tid, mid) values (${pid}, ${tid}, ${move.mid})`;
+                    await db`insert into moves (pid, tid, mid) values (${pid}, ${tid}, ${move.mid})`;
                 }
             }
 

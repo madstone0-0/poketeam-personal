@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { customLogger, logger } from "./logging.js";
-import { resolveError, sendData, sendError, sendSR } from "./utils.js";
+import { resolveError, sendData, sendError, sendSR } from "./utils/utils.js";
 import { HEALTH_TEXT } from "./constants.js";
 import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
@@ -10,7 +10,6 @@ import user from "./routes/user.js";
 import { prometheus } from "@hono/prometheus";
 const { printMetrics, registerMetrics } = prometheus();
 import { opentelemetryMiddleware } from "./tel.js";
-
 
 const app = new Hono();
 app.use("*", registerMetrics);

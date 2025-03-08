@@ -1,14 +1,7 @@
 import type { RowList, Row } from "postgres";
 import db from "../db/db.js";
-import {
-    type MessageReturn,
-    type NewUser,
-    type PromiseReturn,
-    type User,
-    type UserData,
-    type UserDB,
-} from "../types.js";
-import { handleServerError, prettyPrint, sendMsg, ServiceError, serviceWrapper } from "../utils.js";
+import type { MessageReturn, NewUser, PromiseReturn, User, UserData, UserDB } from "../types/index.js";
+import { handleServerError, prettyPrint, sendMsg, ServiceError } from "../utils/utils.js";
 import { hash, compare } from "bcrypt";
 import { HASH_ROUNDS } from "../constants.js";
 import { customLogger } from "../logging.js";
@@ -74,16 +67,17 @@ class UserService {
             }
 
             const res = (await db<UserDB[]>`select * from "user" where email = ${email}`)[0];
+            const { passhash, username, is_admin, ...rest } = res;
             const loginUser: UserData = {
-                ...res,
-                uname: res.username,
-                isAdmin: res.is_admin,
+                ...rest,
+                uname: username,
+                isAdmin: is_admin,
             };
 
             customLogger(prettyPrint(user));
             customLogger(prettyPrint(res));
 
-            if (!(await compare(password, res.passhash))) throw new ServiceError("Incorrect password", 401);
+            if (!(await compare(password, passhash))) throw new ServiceError("Incorrect password", 401);
 
             return {
                 status: 200,

@@ -1,21 +1,20 @@
 import db from "../db/db.js";
 import { customLogger } from "../logging.js";
-import {
-    type PromiseReturn,
-    type AllTeamData,
-    type TeamData,
-    type NewTeam,
-    type ManyNewTeamPokemon,
-    type NewTeamPokemon,
-    type NewPokemon,
-    type PokemonStat,
-    type TeamPokemon,
-    type TeamPokemonDB,
-    type MessageReturn,
-    type UpdatePokemon,
-    type Pokemon,
-} from "../types.js";
-import { handleServerError, isOk, mapTeamPokemonToStatFetch, prettyPrint, ServiceError } from "../utils.js";
+import type {
+    PromiseReturn,
+    AllTeamData,
+    TeamData,
+    NewTeam,
+    ManyNewTeamPokemon,
+    NewTeamPokemon,
+    NewPokemon,
+    PokemonStat,
+    TeamPokemon,
+    TeamPokemonDB,
+    MessageReturn,
+    UpdatePokemon,
+} from "../types/index.js";
+import { handleServerError, isOk, mapTeamPokemonToStatFetch, prettyPrint, ServiceError } from "../utils/utils.js";
 import UserService from "./UserService.js";
 import StatsService from "./StatsService.js";
 import MovesService from "./MovesService.js";

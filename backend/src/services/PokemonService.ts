@@ -1,11 +1,13 @@
 import { readFile, writeFile, rename } from "fs/promises";
 import { AGE_TO_UPDATE, CACHE_FILE, POKE_API } from "../constants.js";
-import type { CacheTimestampFile, PokemonCacheDB, PromiseReturn, Pokemon, PokemonFetchRes } from "../types.js";
-import { formatPokemonName, handleServerError, prettyPrint, ServiceError } from "../utils.js";
+import type { CacheTimestampFile, PokemonCacheDB, PromiseReturn, Pokemon, PokemonFetchRes } from "../types/index.js";
+import { formatPokemonName, handleServerError, isOk, prettyPrint, ServiceError } from "../utils/utils.js";
 import { RateLimit } from "async-sema";
 import { customLogger } from "../logging.js";
 import db from "../db/db.js";
-import _ from "lodash";
+import { fetch } from "../utils/Fetch.js";
+import type { AxiosResponse } from "axios";
+import type { FetchedList, FetchedPokemon } from "../types/API.js";
 
 class PokemonService {
     async buildCache() {
@@ -26,19 +28,19 @@ class PokemonService {
         }
 
         try {
-            const initRes = await fetch(`${POKE_API}/pokemon?limit=1`);
-            if (!initRes.ok) throw new ServiceError("Failed to fetch pokemon data", 500);
+            const initRes = await fetch.get<FetchedList>(`${POKE_API}/pokemon?limit=1`);
+            if (!isOk(initRes.status)) throw new ServiceError("Failed to fetch pokemon data", 500);
 
-            const initJson = await initRes.json();
-            const totalPokemonCount = initJson.count;
+            const totalPokemonCount = initRes.data.count;
+            console.log({ totalPokemonCount });
 
-            const res = await fetch(`${POKE_API}/pokemon?limit=${totalPokemonCount}`);
-            const allJson = await res.json();
+            const res = await fetch.get<FetchedList>(`${POKE_API}/pokemon?limit=${totalPokemonCount}`);
+            const allData = res.data;
 
             const pids: number[] = [];
             await db.begin(async (db) => {
-                for (const pokemon of allJson.results) {
-                    const pid = pokemon.url.split("/")[6];
+                for (const pokemon of allData.results) {
+                    const pid = parseInt(pokemon.url.split("/")[6]);
                     pids.push(pid);
                 }
                 // Fetch pokemon details in batches
@@ -133,7 +135,7 @@ shiny_sprite_url = ${shiny_sprite_url || null}
         for (const batch of batches) {
             console.log(`[CACHE(${i}/${batches.length})] Fetching batch of ${batch.length} pokemon`);
 
-            const requests: Promise<Response>[] = [];
+            const requests: Promise<AxiosResponse<FetchedPokemon>>[] = [];
 
             for (const pid of batch) {
                 const cachedPokemon = await this.getCachedPokemon(pid);
@@ -142,7 +144,7 @@ shiny_sprite_url = ${shiny_sprite_url || null}
                 } else {
                     console.log(`[CACHE (${i}/${batches.length}) Fetching pokemon data ${pid} from API]`);
                     await limit();
-                    requests.push(fetch(`${POKE_API}/pokemon/${pid}`));
+                    requests.push(fetch.get<FetchedPokemon>(`${POKE_API}/pokemon/${pid}`));
                 }
             }
 
@@ -151,15 +153,16 @@ shiny_sprite_url = ${shiny_sprite_url || null}
                     console.log(`[CACHE (${i}/${batches.length}) Unable to fetch pokemon data from API]`);
                     continue;
                 }
-                const json = await res.json();
-                console.log(`[CACHE (${i}/${batches.length}) Fetched pokemon data ${json.id} from API]`);
+
+                const data = res.data;
+                console.log(`[CACHE (${i}/${batches.length}) Fetched pokemon data ${data.id} from API]`);
                 const pokemonData: PokemonCacheDB = {
-                    pid: json.id,
-                    name: formatPokemonName(json.name),
-                    type1: json.types[0].type.name,
-                    type2: json.types[1]?.type.name,
-                    sprite_url: json.sprites.front_default,
-                    shiny_sprite_url: json.sprites.front_shiny,
+                    pid: data.id,
+                    name: formatPokemonName(data.name),
+                    type1: data.types[0].type.name,
+                    type2: data.types[1]?.type.name,
+                    sprite_url: data.sprites.front_default,
+                    shiny_sprite_url: data.sprites.front_shiny,
                 };
 
                 if (cache) {
@@ -176,16 +179,16 @@ shiny_sprite_url = ${shiny_sprite_url || null}
 
     async FromAPIById(pid: number): PromiseReturn<PokemonFetchRes> {
         try {
-            const res = await fetch(`${POKE_API}/pokemon/${pid}`);
-            if (!res.ok) {
+            const res = await fetch.get<FetchedPokemon>(`${POKE_API}/pokemon/${pid}`);
+            if (!isOk(res.status)) {
                 throw new ServiceError("Failed to fetch pokemon data", 500);
             }
-            const json = await res.json();
+            const json = res.data;
             const pokemonData: PokemonFetchRes = {
                 pid: json.id,
                 name: formatPokemonName(json.name),
                 type1: json.types[0].type.name,
-                type2: json.types[1]?.type.name ?? null,
+                type2: json.types[1]?.type.name,
                 sprite_url: json.sprites.front_default,
                 shiny_sprite_url: json.sprites.front_shiny,
                 stats: json.stats,
@@ -213,23 +216,23 @@ shiny_sprite_url = ${shiny_sprite_url || null}
         }
 
         customLogger(`Fetching pokemon data from API`);
-        const res = await fetch(`${POKE_API}/pokemon/${pid}`);
-        if (!res.ok) {
+        const res = await fetch.get<FetchedPokemon>(`${POKE_API}/pokemon/${pid}`);
+        if (!isOk(res.status)) {
             switch (res.status) {
                 case 404:
-                    throw new ServiceError("Pokemon not found", 404);
+                    throw new ServiceError("Pokemon not found", res.status);
                 default:
                     throw new ServiceError("Failed to fetch pokemon data", 500);
             }
         }
-        const json = await res.json();
+        const data = res.data;
         const pokemonData: PokemonCacheDB = {
-            pid: json.id,
-            name: formatPokemonName(json.name),
-            type1: json.types[0].type.name,
-            type2: json.types[1].type.name ?? null,
-            sprite_url: json.sprites.front_default,
-            shiny_sprite_url: json.sprites.front_shiny,
+            pid: data.id,
+            name: formatPokemonName(data.name),
+            type1: data.types[0].type.name,
+            type2: data.types[1]?.type.name,
+            sprite_url: data.sprites.front_default,
+            shiny_sprite_url: data.sprites.front_shiny,
         };
 
         if (cache) {

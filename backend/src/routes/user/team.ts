@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sendMsg, sendSR } from "../../utils.js";
+import { sendMsg, sendSR } from "../../utils/utils.js";
 import TeamService from "../../services/TeamService.js";
 import {
     createTeamValidator,
@@ -9,7 +9,7 @@ import {
     teamPokemonUpdateValidator,
     teamPokemonValidator,
 } from "../../validation.js";
-import type { ManyNewTeamPokemon, NewPokemon, NewTeam, NewTeamPokemon, UpdatePokemon } from "../../types.js";
+import type { ManyNewTeamPokemon, NewPokemon, NewTeam, NewTeamPokemon, UpdatePokemon } from "../../types/index.js";
 import { checkAuth } from "../../middleware/auth.js";
 
 const team = new Hono();

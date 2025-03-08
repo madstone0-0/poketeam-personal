@@ -1,4 +1,4 @@
-import { prettyPrint } from "./utils.js";
+import { prettyPrint } from "./utils/utils.js";
 
 /* Taken from https://github.com/honojs/hono/blob/main/src/middleware/logger/index.ts */
 import type { MiddlewareHandler } from "hono/types";

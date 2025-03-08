@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sendMsg, sendSR } from "../../utils.js";
+import { sendMsg, sendSR } from "../../utils/utils.js";
 import { pokemonSearchValidator } from "../../validation.js";
 import PokemonService from "../../services/PokemonService.js";
 import { checkAuth } from "../../middleware/auth.js";
@@ -29,6 +29,12 @@ pokemon.get("/id/:id", async (c) => {
 pokemon.get("/moves/:pid", async (c) => {
     const { pid } = c.req.param();
     const sr = await MovesService.FetchByPid(parseInt(pid));
+    return sendSR(c, sr);
+});
+
+pokemon.get("/move-info/:mid", async (c) => {
+    const { mid } = c.req.param();
+    const sr = await MovesService.FetchByMid(parseInt(mid));
     return sendSR(c, sr);
 });
 

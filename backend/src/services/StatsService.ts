@@ -1,8 +1,8 @@
 import type { TransactionSql } from "postgres";
 import db from "../db/db.js";
 import { customLogger } from "../logging.js";
-import type { StatFetch, PromiseReturn, PokemonStat, MessageReturn } from "../types.js";
-import { handleServerError, isOk, prettyPrint, ServiceError } from "../utils.js";
+import type { StatFetch, PromiseReturn, PokemonStat, MessageReturn } from "../types/index.js";
+import { handleServerError, isOk, prettyPrint, ServiceError } from "../utils/utils.js";
 import PokemonService from "./PokemonService.js";
 
 class StatsService {
