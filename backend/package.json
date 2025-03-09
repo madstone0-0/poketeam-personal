@@ -6,7 +6,7 @@
     "build": "pnpm tsc ",
     "start": "node dist/index.js",
     "build-cache": "pnpm tsx ./src/buildCache.ts",
-    "prestart": "NODE_ENV=development; pnpm install && pnpm run build && pnpm run build-cache"
+    "prestart": "NODE_ENV=development; pnpm install && pnpm run build"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

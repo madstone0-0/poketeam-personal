@@ -32,7 +32,7 @@ if (process.env.MODE == "development") {
 } else {
     app.use(
         cors({
-            origin: ["http://poketeam.surge.sh"],
+            origin: ["http://poketeam.surge.sh", "https://poketeam.surge.sh"],
             ...corsOpts,
         }),
     );
