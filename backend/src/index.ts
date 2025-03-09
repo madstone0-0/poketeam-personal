@@ -8,6 +8,7 @@ import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
 import user from "./routes/user.js";
 import { prometheus } from "@hono/prometheus";
+import dotenv from "dotenv";
 const { printMetrics, registerMetrics } = prometheus();
 import { opentelemetryMiddleware } from "./tel.js";
 
@@ -15,15 +16,27 @@ const app = new Hono();
 app.use("*", registerMetrics);
 app.use(logger(customLogger));
 app.use("*", opentelemetryMiddleware(console));
-app.use(
-    cors({
-        origin: ["http://localhost:5173"],
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-        credentials: true,
-        maxAge: 3600,
-    }),
-);
+const corsOpts = {
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    credentials: true,
+    maxAge: 3600,
+};
+if (process.env.MODE == "development") {
+    app.use(
+        cors({
+            origin: ["http://localhost:5173"],
+            ...corsOpts,
+        }),
+    );
+} else {
+    app.use(
+        cors({
+            origin: ["http://poketeam.surge.sh"],
+            ...corsOpts,
+        }),
+    );
+}
 
 app.onError((e, c) => {
     const err = resolveError(e);
