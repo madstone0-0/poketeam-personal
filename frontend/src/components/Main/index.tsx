@@ -23,7 +23,7 @@ const Main = () => {
     ];
 
     return (
-        <Router basename={import.meta.env.VITE_BASE_URL}>
+        <Router>
             <QueryClientProvider client={queryClient}>
                 <SnackbarProvider maxSnack={4}>
                     <Routes>
