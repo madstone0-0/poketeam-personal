@@ -16,14 +16,11 @@ export default defineConfig({
         outDir: "../dist",
         emptyOutDir: true,
     },
-    base: "",
+    base: "/",
     plugins: [
         react(),
         viteStaticCopy({
-            targets: [
-                { src: path.resolve(__dirname, "./CNAME"), dest: path.resolve(__dirname, "./dist") },
-                { src: path.resolve(__dirname, "./src/favicon.ico"), dest: path.resolve(__dirname, "./dist") },
-            ],
+            targets: [{ src: path.resolve(__dirname, "./CNAME"), dest: path.resolve(__dirname, "./dist") }],
         }),
     ],
 });

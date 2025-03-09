@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import Hero from "../Hero";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -10,13 +10,17 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SnackbarProvider } from "notistack";
 
 const Main = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                refetchOnWindowFocus: false, // default: true
-            },
-        },
-    });
+    const [queryClient] = useState(
+        () =>
+            new QueryClient({
+                defaultOptions: {
+                    queries: {
+                        refetchOnWindowFocus: false,
+                    },
+                },
+            }),
+    );
+
     const headerItems = [
         { label: "Login", href: "/login" },
         { label: "Sign Up", href: "/signup" },
@@ -28,10 +32,10 @@ const Main = () => {
                 <SnackbarProvider maxSnack={4}>
                     <Routes>
                         <Route path="/" element={<Hero headerItems={headerItems} />} />
-                        <Route path="/login" element={<Login headerItems={headerItems} />} />
-                        <Route path="/signup" element={<Signup headerItems={headerItems} />} />
-                        <Route path="/home/*" element={<Home />} />
-                        <Route path="/admin/*" element={<AdminDash />} />
+                        <Route path="login" element={<Login headerItems={headerItems} />} />
+                        <Route path="signup" element={<Signup headerItems={headerItems} />} />
+                        <Route path="home/*" element={<Home />} />
+                        <Route path="admin/*" element={<AdminDash />} />
                     </Routes>
                 </SnackbarProvider>
                 <ReactQueryDevtools initialIsOpen={false} />
