@@ -3,9 +3,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc ",
+    "build": "pnpm tsc ",
     "start": "node dist/index.js",
-    "build-cache": "tsx ./src/buildCache.ts"
+	"prestart": "NODE_ENV=development; pnpm install && pnpm run build",
+    "build-cache": "pnpm tsx ./src/buildCache.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
