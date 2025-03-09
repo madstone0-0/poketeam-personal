@@ -41,6 +41,12 @@ importers:
       redis:
         specifier: ^4.7.0
         version: 4.7.0
+      tsx:
+        specifier: ^4.7.1
+        version: 4.19.2
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -72,9 +78,6 @@ importers:
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
-      tsx:
-        specifier: ^4.7.1
-        version: 4.19.2
 
 packages:
 
@@ -1405,6 +1408,11 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  typescript@5.8.2:
+    resolution: {integrity: sha512-aJn6wq13/afZp/jT9QZmwEjDqqvSGp1VT5GVg+f/t6/oVyrgXM6BY1h9BRh/O5p3PlUPAe+WuiEZOmb/49RqoQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   uint8array-extras@1.4.0:
     resolution: {integrity: sha512-ZPtzy0hu4cZjv3z5NW9gfKnNLjoz4y6uv4HlelAjDK7sY/xOkKZv9xK/WQpcsBB3jEybChz9DPC2U/+cusjJVQ==}
     engines: {node: '>=18'}
@@ -2674,6 +2682,8 @@ snapshots:
       get-tsconfig: 4.8.1
     optionalDependencies:
       fsevents: 2.3.3
+
+  typescript@5.8.2: {}
 
   uint8array-extras@1.4.0: {}
 
