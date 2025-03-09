@@ -2,7 +2,7 @@ import type { MiddlewareHandler } from "hono";
 import { getCookie } from "hono/cookie";
 import { prettyPrint, sendError } from "../utils/utils.js";
 import { customLogger } from "../logging.js";
-import type { UserData, UserDB } from "../types/index.js";
+import type { UserData } from "../types/index.js";
 
 export const checkAuth: MiddlewareHandler = async (c, next) => {
     const userCookie = getCookie(c, "user");
@@ -20,9 +20,9 @@ export const checkAdminAuth: MiddlewareHandler = async (c, next) => {
         return c.json(sendError("Unauthorized"), 401);
     }
 
-    const user: UserDB = JSON.parse(userCookie);
+    const user: UserData = JSON.parse(userCookie);
     customLogger(`User: ${prettyPrint(user)}`);
-    if (!user.is_admin) return c.json(sendError("Unauthorized"), 401);
+    if (!user.isAdmin) return c.json(sendError("Unauthorized"), 401);
 
     await next();
 };
