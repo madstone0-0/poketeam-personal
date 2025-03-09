@@ -6,6 +6,7 @@ const CACHE_FILE = join(import.meta.dirname, "cache_timestamp.json");
 const CACHE_TIMESTAMP_KEY = "timestamp";
 const CACHE_SUCCESS_KEY = "success";
 const AGE_TO_UPDATE = 24 * 60 * 60 * 1000;
+const EXPIRE_TIME = 60 * 60 * 24;
 
 const HEALTH_TEXT = `They have taken the bridge and the second hall.
 We have barred the gates but cannot hold them for long.
@@ -14,4 +15,13 @@ A shadow lurks in the dark. We can not get out.
 They are coming.
 `;
 
-export { POKE_API, AGE_TO_UPDATE, HEALTH_TEXT, HASH_ROUNDS, CACHE_SUCCESS_KEY, CACHE_TIMESTAMP_KEY, CACHE_FILE };
+export {
+    POKE_API,
+    AGE_TO_UPDATE,
+    HEALTH_TEXT,
+    HASH_ROUNDS,
+    CACHE_SUCCESS_KEY,
+    CACHE_TIMESTAMP_KEY,
+    CACHE_FILE,
+    EXPIRE_TIME,
+};

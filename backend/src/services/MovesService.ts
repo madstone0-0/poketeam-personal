@@ -6,7 +6,8 @@ import { customLogger } from "../logging.js";
 import type { TransactionSql } from "postgres";
 import type { MoveInfo } from "../types/API.js";
 import { fetch } from "../utils/Fetch.js";
-import { POKE_API } from "../constants.js";
+import { EXPIRE_TIME, POKE_API } from "../constants.js";
+import redisClient from "../redis/index.js";
 
 class MovesService {
     private async doesMovesExist(pid: number, tid: number) {
@@ -22,10 +23,21 @@ class MovesService {
 
     async FetchByMid(mid: number): PromiseReturn<MoveInfo> {
         try {
+            const cachedMove = await redisClient.get(`move:${mid}`);
+            if (cachedMove !== null) {
+                return {
+                    status: 200,
+                    data: JSON.parse(cachedMove) as MoveInfo,
+                };
+            }
+
             const res = await fetch.get<MoveInfo>(`${POKE_API}/move/${mid}`);
             if (!isOk(res.status)) throw new ServiceError("Failed to fetch move info", 500);
 
             const data = res.data;
+            await redisClient.set(`move:${mid}`, JSON.stringify(data), {
+                EX: EXPIRE_TIME,
+            });
 
             return {
                 status: 200,
@@ -38,6 +50,14 @@ class MovesService {
 
     async FetchByPid(pid: number): PromiseReturn<MoveFetch[]> {
         try {
+            const cachedMoves = await redisClient.get(`pokemon:${pid}:moves`);
+            if (cachedMoves !== null) {
+                return {
+                    status: 200,
+                    data: JSON.parse(cachedMoves) as MoveFetch[],
+                };
+            }
+
             const res = await PokemonService.FromAPIById(pid);
             if (!isOk(res.status)) {
                 throw new ServiceError("Failed to fetch pokemon data", 500);
@@ -50,6 +70,10 @@ class MovesService {
                     mid: parseInt(mid),
                     name: move.move.name,
                 };
+            });
+
+            await redisClient.set(`pokemon:${pid}:moves`, JSON.stringify(pokeMoves), {
+                EX: EXPIRE_TIME,
             });
             return {
                 status: 200,
