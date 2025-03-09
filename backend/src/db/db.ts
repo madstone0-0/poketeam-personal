@@ -3,11 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const db = postgres({
-    db: process.env.DB || "poketeam_dev",
-    host: process.env.HOST || "localhost",
-    pass: process.env.PASS || "password",
-    user: process.env.USER || "user",
+const db = postgres(process.env.DATABASE_URL || "postgres://USER:PASS@localhost:5432/poketeam ", {
     prepare: true,
     transform: {
         undefined: null,

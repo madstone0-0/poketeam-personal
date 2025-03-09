@@ -8,7 +8,7 @@ class RedisWrapper {
 
     constructor() {
         this.client = createClient({
-            url: process.env.REDIS_URL || "redis://localhost:6379",
+            url: process.env.REDISCLOUD_URL || "redis://localhost:6379",
         });
 
         // Event listeners to update availability
