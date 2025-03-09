@@ -180,7 +180,7 @@ const useUserQueriesAndMutations = (user: { uid: number; tid?: number }) => {
                     nav("/login");
                 }
             }),
-        enabled: true,
+        enabled: false,
         staleTime: 5000,
     });
 
