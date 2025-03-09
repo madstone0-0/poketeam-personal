@@ -7,6 +7,12 @@ import path from "path";
 export default defineConfig({
     root: "src",
     build: {
+        rollupOptions: {
+            input: {
+                main: path.resolve(__dirname, "./src/index.html"),
+                e200: path.resolve(__dirname, "./src/200.html"),
+            },
+        },
         outDir: "../dist",
         emptyOutDir: true,
     },
@@ -15,7 +21,7 @@ export default defineConfig({
         react(),
         viteStaticCopy({
             targets: [
-                { src: path.resolve(__dirname, "./.htaccess"), dest: path.resolve(__dirname, "./dist") },
+                { src: path.resolve(__dirname, "./CNAME"), dest: path.resolve(__dirname, "./dist") },
                 { src: path.resolve(__dirname, "./src/favicon.ico"), dest: path.resolve(__dirname, "./dist") },
             ],
         }),
