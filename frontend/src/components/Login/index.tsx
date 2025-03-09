@@ -77,12 +77,12 @@ const Login = ({ headerItems }: LoginProps) => {
             updatePassword("");
 
             reset({
-                username: d.username,
+                username: d.uname,
                 email: d.email,
                 fname: d.fname,
                 lname: d.lname,
                 uid: d.uid,
-                admin: d.is_admin,
+                admin: d.isAdmin,
             });
 
             setLoading(false);

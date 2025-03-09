@@ -25,7 +25,7 @@ const Home = () => {
 
     const user = useStore((state) => state.user);
     const selectedTeam = useStore((state) => state.selectedTeam);
-    const { username, uid } = user;
+    const { uname, uid } = user;
     const reset = useStore((state) => state.reset);
     const { queries } = useUserQueriesAndMutations({ uid: uid!, tid: selectedTeam });
     const { teamsQuery } = queries;
@@ -72,7 +72,7 @@ const Home = () => {
     };
 
     let headerItems = [];
-    if (user.is_admin) {
+    if (user.isAdmin) {
         headerItems = [
             { label: "Teams", href: "/home/teams" },
             { label: "Admin", href: "/admin/" },
@@ -89,7 +89,7 @@ const Home = () => {
                 className="rounded-full hover:cursor-pointer btn btn-ghost avatar placeholder"
             >
                 <div className="w-10 rounded-full bg-neutral text-neutral-content">
-                    <span className="text-3xl">{username ? username[0].toUpperCase() : "U"}</span>
+                    <span className="text-3xl">{uname ? uname[0].toUpperCase() : "U"}</span>
                 </div>
             </div>
             <ul tabIndex={0} className="p-2 w-52 shadow menu dropdown-content bg-base-100 rounded-box z-[1]">

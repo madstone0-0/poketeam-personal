@@ -22,13 +22,12 @@ export type User = {
     uid: UID;
     fname: string;
     lname: string;
-    username: string;
+    uname: string;
     email: string;
-    password: string;
-    is_admin: boolean;
+    isAdmin: boolean;
 };
 
-export type NewUser = Omit<User, "uid">;
+export type NewUser = Omit<User, "uid"> & { password: string };
 
 export type PasswordlessUser = Omit<User, "password">;
 
@@ -62,7 +61,7 @@ export type Pokemon = {
     sprite_url: string;
     shiny_sprite_url: string;
     level: number;
-    type1: string;
+    type1?: string;
     type2?: string;
 };
 

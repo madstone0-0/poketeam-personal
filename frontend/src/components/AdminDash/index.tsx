@@ -21,7 +21,7 @@ import { ClickHandler, HeaderIitem, MsgResponse, NewUser, ResponseMaybeProblems,
 const AdminDash = () => {
     const user = useStore((state) => state.user);
     const reset = useStore((state) => state.reset);
-    const username = user.username;
+    const uname = user.uname;
     const nav = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
 
@@ -56,7 +56,7 @@ const AdminDash = () => {
                 className="rounded-full hover:cursor-pointer btn btn-ghost avatar placeholder"
             >
                 <div className="w-10 rounded-full bg-neutral text-neutral-content">
-                    <span className="text-3xl">{username ? username[0].toUpperCase() : "U"}</span>
+                    <span className="text-3xl">{uname ? uname[0].toUpperCase() : "U"}</span>
                 </div>
             </div>
             <ul tabIndex={0} className="p-2 w-52 shadow menu dropdown-content bg-base-100 rounded-box z-[1]">
@@ -70,7 +70,7 @@ const AdminDash = () => {
     ];
 
     useEffect(() => {
-        if (!user.is_admin) {
+        if (!user.isAdmin) {
             nav("/");
         }
     }, []);
@@ -97,10 +97,10 @@ const AdminCreate = () => {
         defaultValues: {
             fname: "",
             lname: "",
-            username: "",
+            uname: "",
             email: "",
             password: "",
-            is_admin: true,
+            isAdmin: true,
         },
         onSubmit: async ({ value }) => {
             await onCreateAdmin(value);
@@ -229,13 +229,13 @@ const AdminCreate = () => {
                     )}
                 />
                 <form.Field
-                    name="username"
+                    name="uname"
                     children={(field) => (
                         <Input
                             type="text"
-                            id="username"
+                            id="uname"
                             Icon={UserIcon}
-                            placeholder="Username"
+                            placeholder="uname"
                             name={field.name}
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}
@@ -342,31 +342,23 @@ const TeamsDisplay = () => {
     const Main = ({ teams }: MainProps) => {
         if (!teams) return <div>No teams found</div>;
 
-        // TODO: Replace with map
-        const teamsByUser: { uid: UID; user: Team["user"]; teams: Team[] }[] = [];
+        const teamsByUser = new Map<UID, Team[]>();
         for (const team of teams) {
-            let user = teamsByUser.find((u) => u.uid === team.uid);
-            if (!user) {
-                user = { uid: team.uid, user: team.user, teams: [] };
-                teamsByUser.push(user);
-            }
-            user.teams.push(team);
+            const userTeams = teamsByUser.get(team.uid);
+            if (userTeams) userTeams.push(team);
+            else teamsByUser.set(team.uid, [team]);
         }
 
         return (
             <>
-                {teamsByUser.map((user) => (
+                {Array.from(teamsByUser).map(([uid, teams]) => (
                     <div className="w-full shadow-xl card bg-base-100">
                         <div className="card-body">
                             <h2 className="card-title">
-                                {user.user.fname} {user.user.lname}{" "}
-                                <span className="text-sm text-gray-500">#{user.uid}</span>
+                                {teams[0].user.fname} {teams[0].user.lname}{" "}
+                                <span className="text-sm text-gray-500">#{uid}</span>
                             </h2>
-                            {user.teams ? (
-                                <TeamGrid showControls={{ create: false, del: true }} teams={user.teams} />
-                            ) : (
-                                <></>
-                            )}
+                            {teams ? <TeamGrid showControls={{ create: false, del: true }} teams={teams} /> : <></>}
                         </div>
                     </div>
                 ))}
@@ -421,10 +413,9 @@ const UsersDisplay = () => {
             uid: 0,
             fname: "",
             lname: "",
-            username: "",
+            uname: "",
             email: "",
-            is_admin: false,
-            password: "",
+            isAdmin: false,
         },
 
         onSubmit: async ({ value }) => {
@@ -437,9 +428,9 @@ const UsersDisplay = () => {
         editForm.setFieldValue("uid", user.uid);
         editForm.setFieldValue("fname", user.fname);
         editForm.setFieldValue("lname", user.lname);
-        editForm.setFieldValue("username", user.username);
+        editForm.setFieldValue("uname", user.uname);
         editForm.setFieldValue("email", user.email);
-        editForm.setFieldValue("is_admin", user.is_admin);
+        editForm.setFieldValue("isAdmin", user.isAdmin);
 
         const modal = document.getElementById("updateModal")! as HTMLDialogElement;
         const cancelButton = modal.querySelector("#cancelButton") as HTMLButtonElement;
@@ -461,7 +452,7 @@ const UsersDisplay = () => {
                             <tr>
                                 <th></th>
                                 <th>Name</th>
-                                <th>Username</th>
+                                <th>uname</th>
                                 <th>Email</th>
                                 <th>Actions</th>
                             </tr>
@@ -473,7 +464,7 @@ const UsersDisplay = () => {
                                     <td>
                                         {user.fname} {user.lname}
                                     </td>
-                                    <td>{user.username}</td>
+                                    <td>{user.uname}</td>
                                     <td>{user.email}</td>
                                     <td>
                                         <div className="flex flex-col space-y-2 w-full align-middle md:flex-row md:space-y-0 md:space-x-2 md:w-1/2">
@@ -568,12 +559,12 @@ const UsersDisplay = () => {
                             />
 
                             <editForm.Field
-                                name="username"
+                                name="uname"
                                 children={(field) => (
                                     <Input
                                         labelClassname="w-full"
                                         className="w-1/2"
-                                        Icon={() => <h1 className="font-bold">Username</h1>}
+                                        Icon={() => <h1 className="font-bold">uname</h1>}
                                         name={field.name}
                                         value={field.state.value}
                                         onChange={(e) => field.handleChange(e.target.value)}
@@ -581,12 +572,12 @@ const UsersDisplay = () => {
                                 )}
                             />
                             <editForm.Field
-                                name="is_admin"
+                                name="isAdmin"
                                 children={(field) => (
                                     <div className="flex flex-row space-x-4 w-full">
                                         <label>Admin</label>
                                         <input
-                                            id="is_admin"
+                                            id="isAdmin"
                                             type="checkbox"
                                             checked={field.state.value}
                                             onChange={(e) => field.handleChange(e.target.checked)}

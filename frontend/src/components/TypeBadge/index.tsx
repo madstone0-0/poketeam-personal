@@ -1,7 +1,5 @@
-import React from "react";
-
-const TypeBadge = ({ type }: { type: string }) => {
-    const mapTypeToColor = (type: string) => {
+const TypeBadge = ({ type }: { type?: string }) => {
+    const mapTypeToColor = (type?: string) => {
         switch (type) {
             case "normal":
                 return "bg-gray-400";
@@ -40,11 +38,11 @@ const TypeBadge = ({ type }: { type: string }) => {
             case "fairy":
                 return "bg-pink-400";
             default:
-                return "bg-gray-400";
+                return "bg-gray-700";
         }
     };
 
-    const formatType = (type: string) => {
+    const formatType = (type?: string) => {
         if (type === null || type === undefined) {
             return "???";
         }

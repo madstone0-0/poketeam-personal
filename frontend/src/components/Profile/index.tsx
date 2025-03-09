@@ -14,7 +14,7 @@ type ProfileProps = {
 
 const Profile = ({ user }: ProfileProps) => {
     const reset = useStore((state) => state.reset);
-    const username = user.username;
+    const username = user.uname;
     const { enqueueSnackbar } = useSnackbar();
 
     const handleConfirmation = (callback: Callback) => {
@@ -39,10 +39,9 @@ const Profile = ({ user }: ProfileProps) => {
             uid: user.uid,
             fname: user.fname,
             lname: user.lname,
-            username: user.username,
+            uname: user.uname,
             email: user.email,
-            is_admin: user.is_admin,
-            password: "",
+            isAdmin: user.isAdmin,
         },
         onSubmit: async ({ value }) => {
             handleConfirmation(async () => {
@@ -51,15 +50,15 @@ const Profile = ({ user }: ProfileProps) => {
                     reset({
                         fname: value.fname,
                         lname: value.lname,
-                        username: value.username,
+                        username: value.uname,
                         email: value.email,
-                        admin: value.is_admin,
+                        admin: value.isAdmin,
                     });
                     detailsForm.setFieldValue("fname", value.fname);
                     detailsForm.setFieldValue("lname", value.lname);
-                    detailsForm.setFieldValue("username", value.username);
+                    detailsForm.setFieldValue("uname", value.uname);
                     detailsForm.setFieldValue("email", value.email);
-                    detailsForm.setFieldValue("is_admin", value.is_admin);
+                    detailsForm.setFieldValue("isAdmin", value.isAdmin);
                     enqueueSnackbar(res.msg, { variant: "success" });
                 } catch (error) {
                     console.error({ error });
@@ -135,7 +134,7 @@ const Profile = ({ user }: ProfileProps) => {
                             />
 
                             <detailsForm.Field
-                                name="username"
+                                name="uname"
                                 children={(field) => (
                                     <Input
                                         labelClassname="w-1/2"

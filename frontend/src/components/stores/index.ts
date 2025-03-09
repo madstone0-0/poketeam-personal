@@ -15,12 +15,11 @@ import { TeamPokemon, User } from "../../types";
 // };
 
 const initialUser: User = {
-    username: "",
+    uname: "",
     email: "",
     fname: "",
     lname: "",
-    password: "",
-    is_admin: false,
+    isAdmin: false,
     uid: 0,
 };
 
@@ -71,7 +70,7 @@ const useStore = create<UserState>()(
 
                     updateUsername: (val) =>
                         set((state) => {
-                            state.user.username = val;
+                            state.user.uname = val;
                         }),
 
                     updateEmail: (val) =>
@@ -104,14 +103,14 @@ const useStore = create<UserState>()(
                             }
 
                             const { username, email, fname, lname, uid, pokemon, team, admin } = opts;
-                            if (username) state.user.username = username;
+                            if (username) state.user.uname = username;
                             if (email) state.user.email = email;
                             if (fname) state.user.fname = fname;
                             if (lname) state.user.lname = lname;
                             if (uid) state.user.uid = uid;
                             if (pokemon) state.selectedPokemon = pokemon;
                             if (team) state.selectedTeam = team;
-                            if (admin) state.user.is_admin = admin;
+                            if (admin) state.user.isAdmin = admin;
                         }),
                 }),
                 {

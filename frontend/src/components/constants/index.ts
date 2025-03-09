@@ -16,6 +16,7 @@ export const POKEMON_ROUTE = `${USER_ROUTE}pokemon/`;
 export const SEARCH = `${POKEMON_ROUTE}search`;
 export const GET_BY_ID = `${POKEMON_ROUTE}id/`;
 export const GET_MOVES_BY_ID = `${POKEMON_ROUTE}moves/`;
+export const GET_MOVE_INFO_BY_ID = `${POKEMON_ROUTE}move-info/`;
 
 export const TEAM_ROUTE = `${USER_ROUTE}team/`;
 export const ALL_TEAMS = `${TEAM_ROUTE}all/`;

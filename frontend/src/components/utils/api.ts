@@ -13,6 +13,7 @@ import {
     GET_ALL_USERS,
     GET_BY_ID,
     GET_MOVES_BY_ID,
+    GET_MOVE_INFO_BY_ID,
     POKEAPI_BASE,
     SEARCH,
     UPDATE_TEAM,
@@ -102,9 +103,7 @@ export const getAllUsers = async () => {
 
 export const getMoveInfo = async (mid: number, abort?: AbortSignal) => {
     try {
-        const res = await axios.get<MoveFetch>(`${POKEAPI_BASE}move/${mid}`, {
-            baseURL: "",
-            withCredentials: false,
+        const res = await fetch.get<MoveFetch>(`${API_BASE}${GET_MOVE_INFO_BY_ID}${mid}`, {
             signal: abort,
         });
         const data = res.data;

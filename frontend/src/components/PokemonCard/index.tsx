@@ -26,7 +26,7 @@ const PokemonCard = ({
 
     let name: string;
     let pid: number;
-    let type1: string;
+    let type1: string | undefined;
     let type2: string | undefined;
 
     if (searchCard) {
