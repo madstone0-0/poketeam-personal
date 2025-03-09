@@ -1,5 +1,5 @@
 {
-	"packageManager": "pnpm@9.15.2",
+	"packageManager": "pnpm@9.15.7+sha256.1c18d98ba5bf0734fc7e28f6c8f1b43b1bcd866777decde281d14859390603fc",
 	"engines": {
 		"node": "20.x"
 	},
