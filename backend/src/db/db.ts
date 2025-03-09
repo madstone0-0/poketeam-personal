@@ -1,4 +1,7 @@
 import postgres from "postgres";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const db = postgres({
     db: process.env.DB || "poketeam_dev",
