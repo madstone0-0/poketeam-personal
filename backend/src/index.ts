@@ -53,7 +53,7 @@ app.route("/auth", auth);
 app.route("/admin", admin);
 app.route("/user", user);
 
-const port = 8000;
+const port = parseInt(process.env.PORT || "8000");
 console.log(`Server is running on http://localhost:${port}`);
 serve({
     fetch: app.fetch,
