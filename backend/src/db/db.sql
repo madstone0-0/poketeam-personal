@@ -77,7 +77,7 @@ CREATE TABLE stats (
 CREATE TABLE IF NOT EXISTS pokemon_cache (
   pid INT PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
-  type1 VARCHAR(20) NOT NULL,
+  type1 VARCHAR(20),
   type2 VARCHAR(20),
   sprite_url VARCHAR(255),
   shiny_sprite_url VARCHAR(255),

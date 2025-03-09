@@ -354,6 +354,6 @@ export type FetchedPokemon = {
     sprites: ExtendedSprites;
     cries: Cries;
     stats: StatFetchRes[];
-    types: [TypeWithSlot, TypeWithSlot?];
+    types: [TypeWithSlot?, TypeWithSlot?];
     past_types: PastType[];
 };

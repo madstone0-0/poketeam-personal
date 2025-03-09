@@ -45,6 +45,7 @@ class PokemonService {
                 }
                 // Fetch pokemon details in batches
                 const pokemonDataBatch = await this.fetchPokemonByIdInParallel(pids, true);
+
                 // cache pokemon data in batches
                 const cache = await this.cachePokemonBatch(pokemonDataBatch);
             });
@@ -57,6 +58,7 @@ class PokemonService {
             const tempFile = `${CACHE_FILE}.tmp`;
             await writeFile(tempFile, JSON.stringify({ timestamp: Date.now(), success: false }));
             await rename(tempFile, CACHE_FILE);
+            console.error(`BuildCache failed -> ${(e as Error).stack}`);
         }
     }
 
@@ -159,7 +161,7 @@ shiny_sprite_url = ${shiny_sprite_url || null}
                 const pokemonData: PokemonCacheDB = {
                     pid: data.id,
                     name: formatPokemonName(data.name),
-                    type1: data.types[0].type.name,
+                    type1: data.types[0]?.type.name,
                     type2: data.types[1]?.type.name,
                     sprite_url: data.sprites.front_default,
                     shiny_sprite_url: data.sprites.front_shiny,
@@ -187,7 +189,7 @@ shiny_sprite_url = ${shiny_sprite_url || null}
             const pokemonData: PokemonFetchRes = {
                 pid: json.id,
                 name: formatPokemonName(json.name),
-                type1: json.types[0].type.name,
+                type1: json.types[0]?.type.name,
                 type2: json.types[1]?.type.name,
                 sprite_url: json.sprites.front_default,
                 shiny_sprite_url: json.sprites.front_shiny,
@@ -229,7 +231,7 @@ shiny_sprite_url = ${shiny_sprite_url || null}
         const pokemonData: PokemonCacheDB = {
             pid: data.id,
             name: formatPokemonName(data.name),
-            type1: data.types[0].type.name,
+            type1: data.types[0]?.type.name,
             type2: data.types[1]?.type.name,
             sprite_url: data.sprites.front_default,
             shiny_sprite_url: data.sprites.front_shiny,
